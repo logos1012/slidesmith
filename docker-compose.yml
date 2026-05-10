@@ -30,6 +30,8 @@ services:
       - LLM_SERVICE_URL=http://slidesmith-llm:3001
       - RENDER_SERVICE_URL=http://slidesmith-render:3002
       - STORAGE_SERVICE_URL=http://slidesmith-storage:3003
+      # v1.0.1 fix: BFF self-URL for in-cluster render-temp PNG fetches.
+      - WEB_INTERNAL_URL=http://slidesmith-web:3000
       - SAGA_DB_PATH=/app/data/saga.db
       - LAN_EXPOSE=${LAN_EXPOSE:-false}
       - NEXT_PUBLIC_GITHUB_REPO=${NEXT_PUBLIC_GITHUB_REPO:-https://github.com/logos1012/slidesmith}

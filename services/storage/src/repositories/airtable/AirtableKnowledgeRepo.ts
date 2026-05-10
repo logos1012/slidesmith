@@ -75,7 +75,7 @@ export class AirtableKnowledgeRepo implements IKnowledgeRepo {
   async create(input: KnowledgeCreate): Promise<KnowledgeItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableKnowledgeFields>>(`/${TABLE}`, {
       method: 'POST',
-      body: JSON.stringify({ fields: encodeKnowledge(input) }),
+      body: JSON.stringify({ fields: encodeKnowledge(input), typecast: true }),
     });
     return airtableToKnowledge(rec);
   }
@@ -83,7 +83,7 @@ export class AirtableKnowledgeRepo implements IKnowledgeRepo {
   async update(id: string, patch: KnowledgePatch): Promise<KnowledgeItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableKnowledgeFields>>(`/${TABLE}/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ fields: encodeKnowledge(patch) }),
+      body: JSON.stringify({ fields: encodeKnowledge(patch), typecast: true }),
     });
     return airtableToKnowledge(rec);
   }

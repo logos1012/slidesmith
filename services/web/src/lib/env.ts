@@ -10,6 +10,10 @@ const Schema = z.object({
   LLM_SERVICE_URL: z.string().url().default('http://slidesmith-llm:3001'),
   RENDER_SERVICE_URL: z.string().url().default('http://slidesmith-render:3002'),
   STORAGE_SERVICE_URL: z.string().url().default('http://slidesmith-storage:3003'),
+  // v1.0.1 contract gap fix: BFF self-URL used by HttpRenderGateway to mint
+  // temp URLs for ZIP-extracted PNGs that the Saga's upload-blob step then
+  // fetches. Defaults to the Compose-internal name so render→S3 stays in-cluster.
+  WEB_INTERNAL_URL: z.string().url().default('http://slidesmith-web:3000'),
   SAGA_DB_PATH: z.string().default('/app/data/saga.db'),
   LAN_EXPOSE: z.enum(['true', 'false']).default('false'),
   NEXT_PUBLIC_GITHUB_REPO: z.string().url().default('https://github.com/logos1012/slidesmith'),

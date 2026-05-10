@@ -4,7 +4,18 @@ import type { IBlobStorage, BlobUploadInput, BlobUploadResult } from '@/reposito
 import type { IServiceClient } from '@/repositories/interfaces/IServiceClient';
 import { z } from 'zod';
 
-const BlobUploadResultSchema = z.object({ key: z.string(), url: z.string(), size: z.number() });
+// v1.0.1: storage replies with { key, url, etag, expiresAt }; BFF only reads `key`
+// downstream (Saga side-effect ledger). Size + etag + expiresAt all optional so
+// either the legacy ('size') or storage v1 ('etag','expiresAt') response shape
+// passes — and the Saga keeps moving regardless of which storage is on the other end.
+const BlobUploadResultSchema = z.object({
+  key: z.string(),
+  url: z.string(),
+  size: z.number().optional(),
+  etag: z.string().optional(),
+  expiresAt: z.string().optional(),
+  alreadyExists: z.boolean().optional(),
+});
 const PresignedUrlSchema = z.object({ url: z.string() });
 
 export class HttpBlobStorage implements IBlobStorage {
@@ -16,6 +27,9 @@ export class HttpBlobStorage implements IBlobStorage {
       input.data instanceof Blob ? input.data : new Blob([input.data as ArrayBuffer], { type: input.contentType });
     form.set('file', blob, input.key);
     form.set('key', input.key);
+    // v1.0.1: storage validateMultipartFields() requires `contentType` field
+    // (not just the Blob's MIME). Without this, /blob/upload returns 400.
+    form.set('contentType', input.contentType);
     const res = await this.client.fetch('/blob/upload', {
       method: 'POST',
       body: form,

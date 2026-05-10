@@ -9,7 +9,12 @@ export interface BlobUploadInput {
 export interface BlobUploadResult {
   key: string;
   url: string;
-  size: number;
+  // v1.0.1: optional metadata — storage v1 returns etag+expiresAt; legacy stubs
+  // returned size. Saga only consumes `key`; the extras are kept for diagnostics.
+  size?: number;
+  etag?: string;
+  expiresAt?: string;
+  alreadyExists?: boolean;
 }
 
 export interface IBlobStorage {

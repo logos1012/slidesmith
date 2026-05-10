@@ -6,8 +6,10 @@ import { HttpCarouselRepo } from '@/repositories/http/HttpCarouselRepo';
 import { HttpElementRepo } from '@/repositories/http/HttpElementRepo';
 import { HttpBlobStorage } from '@/repositories/http/HttpBlobStorage';
 import { HttpLlmGateway } from '@/repositories/http/HttpLlmGateway';
-import { HttpRenderGateway } from '@/repositories/http/HttpRenderGateway';
 import type { IServiceClient, ServiceFetchInit } from '@/repositories/interfaces/IServiceClient';
+
+// HttpRenderGateway tests live in `http-render-gateway.test.ts` (node env) because
+// adm-zip's parser misbehaves under vitest+jsdom (build OK, re-parse returns 0 entries).
 
 class MockClient implements IServiceClient {
   baseUrl = 'http://mock';
@@ -87,18 +89,6 @@ describe('Http repositories', () => {
     expect((await r.generateCaption({ slides: [], platform: 'instagram' })).caption).toBe('c');
   });
 
-  it('HttpRenderGateway render', async () => {
-    const c = new MockClient();
-    c.setJson('/render', { zipUrl: 'z', pngUrls: ['p'], durationMs: 1 });
-    const r = new HttpRenderGateway(c);
-    const out = await r.render({ templateId: 't', ratio: '1:1', slides: [{ index: 0, title: 't', body: 'b' }] });
-    expect(out.pngUrls).toEqual(['p']);
-  });
-
-  it('HttpRenderGateway throws on upstream schema mismatch (🟠-4 박제)', async () => {
-    const c = new MockClient();
-    c.setJson('/render', { zipUrl: 123, pngUrls: 'not-array' }); // wrong shape
-    const r = new HttpRenderGateway(c);
-    await expect(r.render({ templateId: 't', ratio: '1:1', slides: [{ index: 0, title: 't', body: 'b' }] })).rejects.toThrow();
-  });
+  // HttpRenderGateway covered separately in `http-render-gateway.test.ts`
+  // (node env — adm-zip parser is jsdom-incompatible; see file header).
 });

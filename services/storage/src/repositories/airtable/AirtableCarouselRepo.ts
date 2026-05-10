@@ -70,7 +70,7 @@ export class AirtableCarouselRepo implements ICarouselRepo {
   async create(input: CarouselCreate): Promise<Carousel> {
     const rec = await airtableFetch<AirtableRecord<AirtableCarouselFields>>(`/${TABLE}`, {
       method: 'POST',
-      body: JSON.stringify({ fields: encodeCarousel(input) }),
+      body: JSON.stringify({ fields: encodeCarousel(input), typecast: true }),
     });
     return airtableToCarousel(rec);
   }
@@ -78,7 +78,7 @@ export class AirtableCarouselRepo implements ICarouselRepo {
   async update(id: string, patch: CarouselPatch): Promise<Carousel> {
     const rec = await airtableFetch<AirtableRecord<AirtableCarouselFields>>(`/${TABLE}/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ fields: encodeCarousel(patch) }),
+      body: JSON.stringify({ fields: encodeCarousel(patch), typecast: true }),
     });
     return airtableToCarousel(rec);
   }

@@ -13,6 +13,9 @@ class MemoryStorage implements Storage {
 }
 
 beforeEach(() => {
+  // v1.0.1: guard for tests opting into node env via `// @vitest-environment node`.
+  // window-dependent shimming only applies under jsdom.
+  if (typeof window === 'undefined') return;
   const ls = new MemoryStorage();
   Object.defineProperty(window, 'localStorage', { value: ls, writable: true, configurable: true });
   Object.defineProperty(globalThis, 'localStorage', { value: ls, writable: true, configurable: true });

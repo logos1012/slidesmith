@@ -64,7 +64,7 @@ export class AirtableElementRepo implements IElementRepo {
   async create(input: ElementCreate): Promise<ElementItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableElementFields>>(`/${TABLE}`, {
       method: 'POST',
-      body: JSON.stringify({ fields: encodeElement(input) }),
+      body: JSON.stringify({ fields: encodeElement(input), typecast: true }),
     });
     return airtableToElement(rec);
   }
@@ -72,7 +72,7 @@ export class AirtableElementRepo implements IElementRepo {
   async update(id: string, patch: ElementPatch): Promise<ElementItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableElementFields>>(`/${TABLE}/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ fields: encodeElement(patch) }),
+      body: JSON.stringify({ fields: encodeElement(patch), typecast: true }),
     });
     return airtableToElement(rec);
   }

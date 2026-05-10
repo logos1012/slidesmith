@@ -55,7 +55,7 @@ export class AirtableTemplateRepo implements ITemplateRepo {
   async create(input: TemplateCreate): Promise<TemplateItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableTemplateFields>>(`/${TABLE}`, {
       method: 'POST',
-      body: JSON.stringify({ fields: encodeTemplate(input) }),
+      body: JSON.stringify({ fields: encodeTemplate(input), typecast: true }),
     });
     return airtableToTemplate(rec);
   }
@@ -63,7 +63,7 @@ export class AirtableTemplateRepo implements ITemplateRepo {
   async update(id: string, patch: TemplatePatch): Promise<TemplateItem> {
     const rec = await airtableFetch<AirtableRecord<AirtableTemplateFields>>(`/${TABLE}/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ fields: encodeTemplate(patch) }),
+      body: JSON.stringify({ fields: encodeTemplate(patch), typecast: true }),
     });
     return airtableToTemplate(rec);
   }
