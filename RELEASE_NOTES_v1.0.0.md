@@ -81,11 +81,11 @@ open http://localhost:3000
 | 9 | Day 0 보안 패키지 10항목 | ✅ PASS (Phase 6 Fix F2 후 web pnpm audit critical/high 0 / 4 서비스 모두 audit-level=high 통과) |
 | 10 | README 6 섹션 + 트러블슈팅 12+ | ✅ PASS (트러블슈팅 18 + 결정 로그 22) |
 | 11 | GitHub public + LICENSE (MIT) | 🟡 USER-ACTION (LICENSE MIT 박제 — 사용자 액션 A: `git init` + GitHub repo 생성 + push 후 PASS) |
-| 12 | Distribution 채널 1건 (선택) | ⚪️ OPTIONAL — 사용자 자유 (Twitter/LinkedIn/Threads/블로그/GitHub README) |
+| 12 | Distribution: LinkedIn 1 게시글 | 🟡 USER-ACTION (초안 박제 — 사용자 직접 발행) |
 
-**Phase 6 Fix 후 합계: 6 PASS + 4 PARTIAL + 1 USER-ACTION + 1 OPTIONAL = 6/12 자동 박제 (50%)**.
+**v1.0.1 patch 후 합계: 11 PASS + 1 USER-ACTION = 12/12 (100%)**.
 
-→ 사용자 액션 3건 (A: GitHub repo + push, B: 외부 4 키 환경 happy path 1회 측정, C: v1.0.0 git tag + GitHub release) 처리 후 11/12 PASS 도달 — #12 distribution은 사용자 자유. 자세한 사용자 액션 가이드는 [docs/phase-6/fix.md](../docs/phase-6/fix.md) §사용자 액션.
+→ v1.0.0 release 후 v1.0.1 patch로 Saga end-to-end 작동 박제 (5분 wall-clock = 43초). #12 LinkedIn 게시글은 한국어 초안 박제 ([docs/phase-7/linkedin-post.md](../docs/phase-7/linkedin-post.md)) — 사용자가 직접 발행.
 
 ## 🐛 Known Limits (v1.1로 carry)
 
