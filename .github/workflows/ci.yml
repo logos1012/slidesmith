@@ -22,7 +22,7 @@ jobs:
       run:
         working-directory: services/${{ matrix.service }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v4
@@ -48,7 +48,7 @@ jobs:
     name: gitleaks (history scan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Run gitleaks
@@ -60,7 +60,7 @@ jobs:
     name: LICENSE + CHANGELOG presence
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: LICENSE present + MIT
         run: |
           test -f LICENSE
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [matrix-static-checks]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare .env (CI dummy keys)
         run: |
           cp .env.example .env
