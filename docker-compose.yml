@@ -59,7 +59,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 768M
+          memory: 1536M  # v1.1.1 hotfix: Next.js 16 dev Turbopack + Aurora SSR이 768M 초과 (OOMKilled, n1)
     networks: [slidesmith-net]
 
   slidesmith-llm:
@@ -143,7 +143,8 @@ services:
           memory: 256M
     networks: [slidesmith-net]
 
-# 메모리 합산: 768 + 512 + 1536 + 256 = 3,072 MB (Mac mini M2 8GB / M4 16GB OK)
+# 메모리 합산: 1536 + 512 + 1536 + 256 = 3,840 MB (Mac mini M2 8GB ~48% / M4 16GB ~24% OK)
+# v1.1.1 hotfix: web 768→1536 (Next.js 16 dev Turbopack + Aurora SSR이 768M 초과)
 volumes:
   slidesmith-data:        # web sqlite saga state + localStorage backup (영속)
   slidesmith-uploads:     # 사용자 업로드 (web 쓰기, render 읽기)

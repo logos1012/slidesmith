@@ -9,10 +9,12 @@ const IsoDateTimeSchema = z.string().min(1);
 export const TemplateRecordSchema = z.object({
   id: UUIDSchema,
   name: z.string(),
-  description: z.string(),
-  ratios: z.array(AspectRatioSchema),
+  // v1.1.2 hotfix: storage Templates schema는 {name, schema, narrative_arc, files,
+  // version, usage_count} 6 필드만. description/ratios/tags는 BFF-side optional.
+  description: z.string().optional().default(''),
+  ratios: z.array(AspectRatioSchema).optional().default(['1:1', '4:5', '9:16']),
   thumbnailUrl: z.string().optional(),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional().default([]),
 });
 export const TemplateListSchema = z.object({ items: z.array(TemplateRecordSchema) });
 export const TemplateDetectSchema = z.object({ template: TemplateRecordSchema.nullable() });
