@@ -1,0 +1,92 @@
+# Dependabot — Phase 6 Build Day 0 보안 박제
+# 4 서비스 npm + Docker base image + GitHub Actions 주간 PR 자동.
+# 사람 리뷰로는 transitive 100+ deps 취약점 추적 불가 — 자동화 baseline.
+
+version: 2
+updates:
+  # 4 서비스 npm 의존성
+  - package-ecosystem: "npm"
+    directory: "/services/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "web"]
+    commit-message:
+      prefix: "chore(web)"
+      include: "scope"
+
+  - package-ecosystem: "npm"
+    directory: "/services/llm"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "llm"]
+    commit-message:
+      prefix: "chore(llm)"
+      include: "scope"
+
+  - package-ecosystem: "npm"
+    directory: "/services/render"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "render"]
+    commit-message:
+      prefix: "chore(render)"
+      include: "scope"
+
+  - package-ecosystem: "npm"
+    directory: "/services/storage"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "storage"]
+    commit-message:
+      prefix: "chore(storage)"
+      include: "scope"
+
+  # 4 서비스 Dockerfile base image
+  - package-ecosystem: "docker"
+    directory: "/services/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["docker", "web"]
+  - package-ecosystem: "docker"
+    directory: "/services/llm"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["docker", "llm"]
+  - package-ecosystem: "docker"
+    directory: "/services/render"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["docker", "render"]
+  - package-ecosystem: "docker"
+    directory: "/services/storage"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["docker", "storage"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["github-actions"]

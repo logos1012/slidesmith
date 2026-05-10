@@ -1,0 +1,155 @@
+# docker-compose.yml — Slidesmith v1.0.0
+# 사용자: Mac mini 로컬 Docker (Mac M2 8GB / M4 16GB)
+# 실행: docker compose up
+#
+# Phase 6 Build (2026-05-10): 4 서비스 통합 박제. depends_on healthy 활성.
+#   - storage / llm / render → 독립 부팅 가능 (외부 의존만)
+#   - web → 3 internal 서비스 모두 healthy 후 부팅 (BFF 진입점)
+#   - 첫 부팅 시간 측정: 30~50초 예상 (storage 15s + llm 20s + render 30s + web 30s)
+#
+# 보안 박제 (Cycle 2 Fix F1):
+#   - web 컨테이너는 env_file 미사용. 외부 4 키 (Anthropic/Airtable/AWS/Gemini)
+#     는 절대 web 환경변수에 노출되지 않음. BFF로 다른 3 서비스에 위임.
+#   - llm/storage 컨테이너만 env_file로 외부 키 수신 (Vendor Encapsulation).
+#   - render는 외부 의존 0 (Puppeteer 로컬 Chromium만).
+
+services:
+  slidesmith-web:
+    build:
+      context: ./services/web
+      target: dev          # multi-stage: dev / prod-build / prod
+    container_name: slidesmith-web
+    ports:
+      # 호스트 포트 충돌 시 .env에 WEB_HOST_PORT=3100 등 override 가능
+      - '127.0.0.1:${WEB_HOST_PORT:-3000}:3000'    # localhost only
+    # 외부 4 키 (Anthropic/Airtable/AWS/Gemini)는 절대 노출 금지 — Vendor 캡슐화 박제.
+    # llm/storage/render 서비스에만 필요한 키 전달 (아래 각 서비스 environment 참조).
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LLM_SERVICE_URL=http://slidesmith-llm:3001
+      - RENDER_SERVICE_URL=http://slidesmith-render:3002
+      - STORAGE_SERVICE_URL=http://slidesmith-storage:3003
+      - SAGA_DB_PATH=/app/data/saga.db
+      - LAN_EXPOSE=${LAN_EXPOSE:-false}
+      - NEXT_PUBLIC_GITHUB_REPO=${NEXT_PUBLIC_GITHUB_REPO:-https://github.com/logos1012/slidesmith}
+      - NEXT_PUBLIC_TAGLINE=${NEXT_PUBLIC_TAGLINE:-한국어 인스타 카루셀, 1줄 → 5분 → 발행}
+      - NEXT_PUBLIC_FEATURE_DARK_MODE=${NEXT_PUBLIC_FEATURE_DARK_MODE:-true}
+      - NEXT_PUBLIC_FEATURE_GEMINI=${NEXT_PUBLIC_FEATURE_GEMINI:-false}
+    volumes:
+      - ./services/web/src:/app/src:cached         # dev hot reload
+      - slidesmith-data:/app/data                  # localStorage backup, sqlite saga state
+      - slidesmith-uploads:/app/public/uploads     # 사용자 업로드 자산
+    # Phase 6 Build: 3 internal 서비스 모두 healthy 후 web 부팅
+    depends_on:
+      slidesmith-llm:
+        condition: service_healthy
+      slidesmith-render:
+        condition: service_healthy
+      slidesmith-storage:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+    networks: [slidesmith-net]
+
+  slidesmith-llm:
+    build:
+      context: ./services/llm
+      target: dev
+    container_name: slidesmith-llm
+    ports:
+      - '127.0.0.1:3001:3001'   # 통합 E2E 직접 curl 위해 매핑 유지
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PORT=3001
+    env_file: .env  # ANTHROPIC_API_KEY, GEMINI_API_KEY (Vendor 격리: llm만)
+    volumes:
+      - ./services/llm/src:/app/src:cached
+      - slidesmith-llm-cache:/app/.cache  # uv venv cache (Gemini Python)
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/health']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks: [slidesmith-net]
+
+  slidesmith-render:
+    build:
+      context: ./services/render
+      target: dev
+    container_name: slidesmith-render
+    ports:
+      - '127.0.0.1:3002:3002'
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    # render는 외부 의존 0 — env_file 불필요. Cycle 3 Fix R1+R2: 컨테이너 침해 시
+    # 외부 자격증명 leak 0 (storage signed URL은 redirect:manual로 reject).
+    volumes:
+      - ./services/render/src:/app/src:cached
+      - slidesmith-render-cache:/app/.cache
+      - slidesmith-uploads:/app/uploads:ro   # 사용자 자산 read-only
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3002/health']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s  # Puppeteer 첫 시작 ~20s
+    deploy:
+      resources:
+        limits:
+          memory: 1536M  # Puppeteer Chromium peak ~1.2GB
+    networks: [slidesmith-net]
+
+  slidesmith-storage:
+    build:
+      context: ./services/storage
+      target: dev
+    container_name: slidesmith-storage
+    ports:
+      - '127.0.0.1:3003:3003'
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    env_file: .env  # AIRTABLE_PAT, AIRTABLE_BASE_ID, AWS_* (Vendor 격리: storage만)
+    volumes:
+      - ./services/storage/src:/app/src:cached
+      - slidesmith-storage-cache:/app/.cache
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3003/health']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks: [slidesmith-net]
+
+# 메모리 합산: 768 + 512 + 1536 + 256 = 3,072 MB (Mac mini M2 8GB / M4 16GB OK)
+volumes:
+  slidesmith-data:        # web sqlite saga state + localStorage backup (영속)
+  slidesmith-uploads:     # 사용자 업로드 (web 쓰기, render 읽기)
+  slidesmith-llm-cache:   # llm uv venv (Gemini Python)
+  slidesmith-render-cache: # render Puppeteer Chromium cache
+  slidesmith-storage-cache: # storage lru-cache (선택)
+
+networks:
+  slidesmith-net:
+    driver: bridge
+    name: slidesmith-net

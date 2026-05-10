@@ -1,0 +1,78 @@
+# Slidesmith — Integration CI (Phase 6 Build)
+# 4 서비스 docker compose 통합 + tests/integration/ E2E 3 spec.
+# 트리거: docker-compose.yml / .env.example / 4 서비스 Dockerfile / tests/integration/ 변경 시 + main push.
+
+name: integration-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docker-compose.yml'
+      - '.env.example'
+      - 'services/*/Dockerfile'
+      - 'tests/integration/**'
+      - '.github/workflows/integration-ci.yml'
+  pull_request:
+    paths:
+      - 'docker-compose.yml'
+      - '.env.example'
+      - 'services/*/Dockerfile'
+      - 'tests/integration/**'
+      - '.github/workflows/integration-ci.yml'
+
+jobs:
+  cold-start-and-smoke:
+    name: 4 서비스 통합 cold start + integration E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Prepare .env (CI dummy keys)
+        run: cp .env.example .env
+      - name: docker compose up -d (4 서비스 통합)
+        run: |
+          START=$(date +%s)
+          docker compose up -d
+          # Wait up to 240s for ALL 4 services to be healthy.
+          for i in $(seq 1 120); do
+            healthy=$(docker compose ps --format json 2>/dev/null | \
+              jq -s '[.[] | select(.Health=="healthy")] | length' 2>/dev/null || echo 0)
+            if [ "$healthy" = "4" ]; then
+              END=$(date +%s)
+              echo "OK   4/4 services healthy in $((END-START))s"
+              docker compose ps
+              echo "COLD_START_SEC=$((END-START))" >> $GITHUB_ENV
+              break
+            fi
+            sleep 2
+          done
+          if [ -z "${COLD_START_SEC:-}" ]; then
+            echo "TIMEOUT: 4 services not all healthy in 240s"
+            docker compose ps
+            docker compose logs --tail=50
+            exit 1
+          fi
+      - name: Memory snapshot
+        run: |
+          docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}'
+      - name: Smoke /api/health/deps (web BFF aggregates)
+        run: |
+          curl -sf http://localhost:3000/api/health/deps | jq .
+      - name: Run integration E2E
+        run: |
+          # tests/integration/는 plain Node test runner (axios + assert) — no framework.
+          node --test tests/integration/00-cold-start.test.mjs
+          node --test tests/integration/01-end-to-end-onboard.test.mjs
+          node --test tests/integration/02-saga-recover-cross-service.test.mjs
+      - name: Print container logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

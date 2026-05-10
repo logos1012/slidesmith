@@ -1,0 +1,90 @@
+# Slidesmith LLM — CI (Phase 6 Build)
+# Day 0 보안 + 91.01% coverage strict gate + Phase 6 contract 8/8 박제
+# 트리거: services/llm/** 변경 시 + main push
+
+name: llm-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/llm/**'
+      - '.github/workflows/llm-ci.yml'
+  pull_request:
+    paths:
+      - 'services/llm/**'
+      - '.github/workflows/llm-ci.yml'
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/llm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint --max-warnings=0
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests with coverage
+        run: pnpm test --coverage
+      - name: Security audit (high+)
+        run: pnpm audit --audit-level=high
+        continue-on-error: false
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare .env (CI dummy keys)
+        run: cp .env.example .env
+      - name: docker compose up slidesmith-llm
+        run: |
+          docker compose up -d slidesmith-llm
+          for i in $(seq 1 60); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' slidesmith-llm 2>/dev/null || echo none)
+            if [ "$status" = "healthy" ]; then break; fi
+            sleep 2
+          done
+          docker ps --filter name=slidesmith-llm
+      - name: 4-원칙 shape contract
+        # Cycle 3 Fix F1 — respondWithKoreanError 5 endpoint 모두 4-원칙 강제.
+        # 신규 endpoint 추가 시 자동 inherit. 회귀 시 즉시 차단.
+        run: |
+          set -e
+          # /content/generate without ANTHROPIC_API_KEY → 401/503 + 4-원칙
+          body=$(curl -s -X POST http://localhost:3001/content/generate \
+            -H 'Content-Type: application/json' \
+            -d '{"brief":"테스트","templateId":"t1","brandDsl":{"voice":"casual"}}')
+          shape=$(echo "$body" | jq -r '.userMessage | keys | sort | join(",")' 2>/dev/null || echo "")
+          if [ "$shape" != "next,recovery,what,why" ]; then
+            echo "C3 REGRESSION: /content/generate userMessage shape=$shape (expected next,recovery,what,why)"
+            echo "body=$body"
+            exit 1
+          fi
+          echo "OK   /content/generate 4-원칙 shape preserved"
+      - name: vendor leak grep on logs
+        run: |
+          set -e
+          # API key prefix이 로그에 절대 0건 (Cycle 2 Fix llm — sanitiseError mask).
+          if docker compose logs slidesmith-llm | grep -ciE 'sk-ant-[A-Za-z0-9]+|AIzaSy[A-Za-z0-9_-]+'; then
+            echo "LEAK: API key prefix in llm logs"
+            docker compose logs slidesmith-llm | tail -50
+            exit 1
+          fi
+          echo "OK   no API key leak in llm logs"
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

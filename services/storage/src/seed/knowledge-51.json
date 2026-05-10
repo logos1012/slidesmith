@@ -1,0 +1,494 @@
+{
+  "version": "1.0.0",
+  "totalCount": 51,
+  "distribution": {
+    "Frameworks": 10,
+    "Hooks": 15,
+    "Narratives": 7,
+    "BrandVoice": 1,
+    "KoreanPatterns": 8,
+    "SensitiveTopics": 10
+  },
+  "items": [
+    {
+      "name": "PAS",
+      "category": "Frameworks",
+      "description": "Problem-Agitate-Solution. Surface the pain, intensify it, then deliver the cure.",
+      "whenToUse": "Short hooks where the audience already feels the pain (productivity, relationships, money).",
+      "structure": "Problem → Agitate (consequences, lost opportunities) → Solution",
+      "examples": "Problem: 5분이면 충분한 일을 30분 잡고 있다. Agitate: 매일 25분, 1년 152시간이 사라진다. Solution: 첫 5분만 적어보세요.",
+      "tags": ["copy", "shortform", "instagram"]
+    },
+    {
+      "name": "AIDA",
+      "category": "Frameworks",
+      "description": "Attention-Interest-Desire-Action. Classical funnel from David Ogilvy.",
+      "whenToUse": "Mid-length carousel where you need 4 distinct beats.",
+      "structure": "Attention (Hook) → Interest (Insight) → Desire (Vision) → Action (CTA)",
+      "examples": "A: 'AI가 코드를 짠다고요?' I: '문법은 맞지만 보안 결함은 1.7배.' D: 'PR 50줄 룰만 지키면 안전.' A: '오늘 PR부터 시작.'",
+      "tags": ["copy", "longform", "funnel"]
+    },
+    {
+      "name": "BAB",
+      "category": "Frameworks",
+      "description": "Before-After-Bridge. Show the gap, then bridge it.",
+      "whenToUse": "Tutorial / transformation stories.",
+      "structure": "Before (current state) → After (desired state) → Bridge (your method)",
+      "examples": "Before: 캡션 1개 30분. After: 30초. Bridge: 5룰 + LLM 한 번.",
+      "tags": ["transformation", "tutorial"]
+    },
+    {
+      "name": "FAB",
+      "category": "Frameworks",
+      "description": "Features-Advantages-Benefits. Translate specs into life impact.",
+      "whenToUse": "Product / tool launches where features alone don't sell.",
+      "structure": "Feature (what) → Advantage (why better) → Benefit (impact on user)",
+      "examples": "F: 51개 시드. A: 0분 setup. B: '도구 셋업이 도구보다 오래' 함정 회피.",
+      "tags": ["product", "launch"]
+    },
+    {
+      "name": "4Ps",
+      "category": "Frameworks",
+      "description": "Promise-Picture-Proof-Push. High-ticket sales structure.",
+      "whenToUse": "When credibility matters and you can show concrete proof.",
+      "structure": "Promise → Picture (vision) → Proof (data) → Push (CTA with urgency)",
+      "examples": "Promise: 5분 안 카루셀. Picture: 점심시간 1개 발행. Proof: 51 시드 + 박제 116 테스트. Push: 지금 git clone.",
+      "tags": ["sales", "credibility"]
+    },
+    {
+      "name": "STAR",
+      "category": "Frameworks",
+      "description": "Situation-Task-Action-Result. Case-study structure.",
+      "whenToUse": "Sharing real outcomes (yours or a customer's).",
+      "structure": "Situation → Task → Action → Result (with numbers)",
+      "examples": "S: 1년 364개 발행 목표. T: 매일 1개 + 토·일 회수. A: 5분 룰. R: 357~359개 (98%).",
+      "tags": ["casestudy", "results"]
+    },
+    {
+      "name": "5W1H",
+      "category": "Frameworks",
+      "description": "Who-What-When-Where-Why-How. Journalism completeness.",
+      "whenToUse": "Explainer / news-style carousel.",
+      "structure": "Who → What → When → Where → Why → How",
+      "examples": "Who: 솔로 개발자. What: 카루셀 도구. When: 5분. Where: Mac mini 로컬. Why: 셋업이 도구보다 오래. How: docker compose up.",
+      "tags": ["explainer", "news"]
+    },
+    {
+      "name": "ListPost",
+      "category": "Frameworks",
+      "description": "N + Noun. The eternal listicle.",
+      "whenToUse": "When the content is genuinely enumerable (tools, mistakes, tips).",
+      "structure": "Hook (N + noun) → Item 1..N → Recap / CTA",
+      "examples": "5분 안에 카루셀 만드는 7가지 도구.",
+      "tags": ["listicle", "evergreen"]
+    },
+    {
+      "name": "Storytelling",
+      "category": "Frameworks",
+      "description": "Hero's Journey condensed. Status quo → trigger → struggle → win → lesson.",
+      "whenToUse": "Personal narrative carousels.",
+      "structure": "Status quo → Trigger → Struggle → Win → Lesson",
+      "examples": "1년 전 카피 30분 → 도구 시도 (실패) → 룰 발견 → 5분 → 100개 발행.",
+      "tags": ["narrative", "personal"]
+    },
+    {
+      "name": "QnA",
+      "category": "Frameworks",
+      "description": "Question + Answer pairs. Built-in retention.",
+      "whenToUse": "FAQ / objection handling.",
+      "structure": "Q1 → A1 → Q2 → A2 → ... → CTA",
+      "examples": "Q: AI가 짠 코드 안전한가요? A: GitClear 결함 1.7배 — 리뷰 필수.",
+      "tags": ["faq", "objection"]
+    },
+
+    {
+      "name": "Shock",
+      "category": "Hooks",
+      "description": "Counter-intuitive claim that breaks the scroll.",
+      "whenToUse": "Strong stat, contrarian view, or unexpected outcome.",
+      "structure": "Bold claim (1 line) → Tension cue → Promise to explain",
+      "examples": "AI가 짠 코드는 보안 결함이 2.74배 더 많다.",
+      "tags": ["hook", "shock", "stat"]
+    },
+    {
+      "name": "Curiosity",
+      "category": "Hooks",
+      "description": "Open loop the reader needs to close.",
+      "whenToUse": "When the answer takes 3+ slides to deliver.",
+      "structure": "Question or partial reveal → 'And here is why ...'",
+      "examples": "왜 시니어 개발자도 5분 룰을 어길까?",
+      "tags": ["hook", "loop"]
+    },
+    {
+      "name": "Authority",
+      "category": "Hooks",
+      "description": "Credibility upfront — name, number, source.",
+      "whenToUse": "Cold audience that needs trust signals before content.",
+      "structure": "Source / number → Insight",
+      "examples": "OWASP: AI 생성 코드 45%가 보안 테스트 실패.",
+      "tags": ["hook", "trust"]
+    },
+    {
+      "name": "Listicle",
+      "category": "Hooks",
+      "description": "Number + noun template. Easy retention.",
+      "whenToUse": "When you can deliver exactly N items.",
+      "structure": "N개 + noun + 결과 약속",
+      "examples": "5분 안에 카루셀 만드는 7가지 도구.",
+      "tags": ["hook", "listicle"]
+    },
+    {
+      "name": "PainPoint",
+      "category": "Hooks",
+      "description": "Name a real pain in 1 line.",
+      "whenToUse": "Pain-aware audience.",
+      "structure": "Symptom 1줄 → 공감 1줄",
+      "examples": "캡션 1개 짜는 데 30분, 또 시작합니다.",
+      "tags": ["hook", "pain"]
+    },
+    {
+      "name": "Contrarian",
+      "category": "Hooks",
+      "description": "Reject mainstream advice, then justify.",
+      "whenToUse": "When you have data the crowd doesn't.",
+      "structure": "X는 틀렸다 → 진짜 이유 → 대안",
+      "examples": "매일 포스팅하지 마세요. 회수가 떨어집니다.",
+      "tags": ["hook", "contrarian"]
+    },
+    {
+      "name": "Question",
+      "category": "Hooks",
+      "description": "Open question forcing self-reflection.",
+      "whenToUse": "Engagement / save bait.",
+      "structure": "구체적 질문 (Yes/No 아님) → 답변 약속",
+      "examples": "지난주에 만든 카루셀, 다시 본 적 있나요?",
+      "tags": ["hook", "question"]
+    },
+    {
+      "name": "Mistake",
+      "category": "Hooks",
+      "description": "Confess a mistake, promise the lesson.",
+      "whenToUse": "Trust building + utility content.",
+      "structure": "내가 한 실수 → 비용 → 깨달음",
+      "examples": "1년 동안 시드 0개로 시작했습니다. 4주 후 깨달았어요.",
+      "tags": ["hook", "story", "trust"]
+    },
+    {
+      "name": "Quote",
+      "category": "Hooks",
+      "description": "Borrow authority via a known voice.",
+      "whenToUse": "When the quote nails your thesis.",
+      "structure": "인용문 → 출처 → 적용",
+      "examples": "'p99이 진짜다 — 평균은 거짓말.' — Datadog.",
+      "tags": ["hook", "quote"]
+    },
+    {
+      "name": "ThenVsNow",
+      "category": "Hooks",
+      "description": "Then-vs-now contrast in one frame.",
+      "whenToUse": "Showing transformation over time.",
+      "structure": "예전 모습 → 지금 모습 → 변곡점",
+      "examples": "1년 전: 캡션 30분. 지금: 30초. 무엇이 바뀌었나?",
+      "tags": ["hook", "transformation"]
+    },
+    {
+      "name": "Numbers",
+      "category": "Hooks",
+      "description": "Lead with a hard number.",
+      "whenToUse": "When the number is surprising.",
+      "structure": "충격적 숫자 → 맥락 1줄 → 약속",
+      "examples": "1년 364개 발행. 비결은 51개 시드입니다.",
+      "tags": ["hook", "stat"]
+    },
+    {
+      "name": "PromiseDirect",
+      "category": "Hooks",
+      "description": "Direct promise of a result.",
+      "whenToUse": "Tutorial / how-to.",
+      "structure": "당신은 ___을 얻을 것이다 → 단 ___분 안에",
+      "examples": "5분 안에 첫 카루셀을 발행합니다 (도구 셋업 포함).",
+      "tags": ["hook", "promise"]
+    },
+    {
+      "name": "Confession",
+      "category": "Hooks",
+      "description": "Vulnerable opener — share a hidden truth.",
+      "whenToUse": "Personal brand building.",
+      "structure": "내가 숨겨온 사실 → 이유 → 교훈",
+      "examples": "사실 첫 도구는 한 번도 쓰지 않았습니다.",
+      "tags": ["hook", "personal", "vulnerability"]
+    },
+    {
+      "name": "Outcome",
+      "category": "Hooks",
+      "description": "Lead with the end-state, then walk back.",
+      "whenToUse": "Case studies, proof posts.",
+      "structure": "결과 (sec/단위/돈) → 기간 → 도구 reveal",
+      "examples": "주말에 카루셀 12개. 평일에 1시간씩 절약.",
+      "tags": ["hook", "result"]
+    },
+    {
+      "name": "MythBust",
+      "category": "Hooks",
+      "description": "Identify a popular myth and dismantle it.",
+      "whenToUse": "Educational, evergreen content.",
+      "structure": "통념 X → 데이터 / 경험 → 진실",
+      "examples": "'AI가 모든 코드를 짠다' — 실제는 50줄 룰을 지킬 때만.",
+      "tags": ["hook", "education"]
+    },
+    {
+      "name": "ProblemSolution",
+      "category": "Narratives",
+      "slideCount": 5,
+      "description": "Pain-first narrative ending in a fix.",
+      "whenToUse": "Tool / framework launches.",
+      "structure": "1.Problem → 2.Cost → 3.Why old fixes fail → 4.New approach → 5.CTA",
+      "examples": "1.캡션 30분 → 2.한 달 15h → 3.템플릿 부족 → 4.5룰 → 5.git clone",
+      "tags": ["narrative", "5slide"]
+    },
+    {
+      "name": "BeforeAfter",
+      "category": "Narratives",
+      "slideCount": 4,
+      "description": "Two-state story with a bridge.",
+      "whenToUse": "Transformations / portfolios.",
+      "structure": "1.Before snapshot → 2.Trigger → 3.After snapshot → 4.Method",
+      "examples": "1.30분 캡션 → 2.도구 시도 → 3.30초 → 4.룰 공개",
+      "tags": ["narrative", "4slide"]
+    },
+    {
+      "name": "Listicle",
+      "category": "Narratives",
+      "slideCount": 7,
+      "description": "Header + N items + recap.",
+      "whenToUse": "Tools, mistakes, lessons (genuinely enumerable).",
+      "structure": "1.Header → 2-6.Items → 7.Recap+CTA",
+      "examples": "1.5가지 도구 → 2.도구1 → ... → 7.git clone",
+      "tags": ["narrative", "list"]
+    },
+    {
+      "name": "Tutorial",
+      "category": "Narratives",
+      "slideCount": 6,
+      "description": "Step-by-step how-to.",
+      "whenToUse": "Concrete walk-through.",
+      "structure": "1.Goal → 2.Prereq → 3-5.Steps → 6.Result",
+      "examples": "1.카루셀 5분 → 2.docker desktop → 3.clone → 4.up → 5.brief → 6.결과",
+      "tags": ["narrative", "howto"]
+    },
+    {
+      "name": "Story",
+      "category": "Narratives",
+      "slideCount": 5,
+      "description": "Hero arc condensed.",
+      "whenToUse": "Personal posts.",
+      "structure": "1.Status quo → 2.Trigger → 3.Struggle → 4.Win → 5.Lesson",
+      "examples": "1.300명 팔로워 → 2.4주 정체 → 3.템플릿 의존 → 4.5룰 → 5.교훈",
+      "tags": ["narrative", "story"]
+    },
+    {
+      "name": "Comparison",
+      "category": "Narratives",
+      "slideCount": 5,
+      "description": "Side-by-side with a verdict.",
+      "whenToUse": "Tool vs tool, approach vs approach.",
+      "structure": "1.Question → 2.A → 3.B → 4.Trade-offs → 5.선택 기준",
+      "examples": "1.K8s vs cron → 2.K8s → 3.cron → 4.운영 비용 → 5.5명 사용자엔 cron",
+      "tags": ["narrative", "compare"]
+    },
+    {
+      "name": "MythVsTruth",
+      "category": "Narratives",
+      "slideCount": 6,
+      "description": "Bust 3-4 myths in sequence.",
+      "whenToUse": "Educational / authority building.",
+      "structure": "1.Hook → 2-5.Myth/Truth pairs → 6.CTA",
+      "examples": "1.'개발자 미신 4개' → 2-5.각 myth+truth → 6.팔로우",
+      "tags": ["narrative", "education"]
+    },
+
+    {
+      "name": "BrandVoice.Default",
+      "category": "BrandVoice",
+      "description": "Default voice — friendly-expert Korean honorifics, no exclamation flood, no clichés.",
+      "whenToUse": "Used by every LLM call until a user overrides via Brand DSL.",
+      "structure": "tone: 친근하지만 전문가적, 한국어 존댓말 기본\nforbidden_phrases: ['안녕하세요!','여러분!','정말 ___합니다','대박']\nsignature_phrases: ['차이를 만드는 한 줄','5분 룰','p99이 진짜']\nfont_stack: 'Pretendard, -apple-system, system-ui'\ncolor_palette: { primary: '#111827', secondary: '#6B7280', accent: '#3B82F6' }\naesthetic_keywords: ['minimalist','warm','marker-style']",
+      "examples": "잘못: '안녕하세요 여러분! 정말 신나는 소식이에요!' / 올바름: '오늘은 5분 룰 하나만 다룹니다.'",
+      "tags": ["voice", "default"]
+    },
+
+    {
+      "name": "EndingDots",
+      "category": "KoreanPatterns",
+      "description": "한국 SNS 특유의 '...' / '~' 마무리 패턴 — 친밀감과 여운.",
+      "whenToUse": "감성 콘텐츠, 일상, 회고.",
+      "structure": "문장 끝에 '...' 또는 '~' (한 카루셀당 1-2회만, 남용 금지)",
+      "examples": "그날 이후, 매일 5분이 달라졌어요...",
+      "tags": ["korean", "tone"]
+    },
+    {
+      "name": "HonorificMix",
+      "category": "KoreanPatterns",
+      "description": "존댓말 + 반말 혼합으로 친근함과 전문가성 동시 확보.",
+      "whenToUse": "친근한 전문가 포지셔닝.",
+      "structure": "본문 존댓말 → 핵심 문장 1개만 반말 (강조)",
+      "examples": "...라고 합니다. 사실, 우린 다 안다.",
+      "tags": ["korean", "tone"]
+    },
+    {
+      "name": "EmojiMinimal",
+      "category": "KoreanPatterns",
+      "description": "이모지는 슬라이드당 0-1개 — 신뢰도 유지.",
+      "whenToUse": "B2B / 전문가 카루셀.",
+      "structure": "슬라이드 전체에서 이모지 ≤ 1개, 헤드라인 끝 활용",
+      "examples": "5분 룰, 진짜입니다. ✓",
+      "tags": ["korean", "design"]
+    },
+    {
+      "name": "QuestionEnding",
+      "category": "KoreanPatterns",
+      "description": "마지막 슬라이드 질문으로 마무리 — 댓글 유도.",
+      "whenToUse": "engagement carousel.",
+      "structure": "마지막 슬라이드: '여러분은 어떠세요?' / '___ 해보셨나요?'",
+      "examples": "여러분의 첫 5분은 어땠나요?",
+      "tags": ["korean", "engagement"]
+    },
+    {
+      "name": "NumberBullet",
+      "category": "KoreanPatterns",
+      "description": "한국 SNS는 숫자 글머리(1. 2. 3.) 가독성 높음.",
+      "whenToUse": "튜토리얼 / 리스트.",
+      "structure": "1. 항목 / 2. 항목 / 3. 항목 (이모지 글머리는 신뢰도 낮춤)",
+      "examples": "1. brief 입력\n2. 템플릿 선택\n3. 발행",
+      "tags": ["korean", "format"]
+    },
+    {
+      "name": "SilenceSpace",
+      "category": "KoreanPatterns",
+      "description": "여백 — 슬라이드당 글자 80자 이하 권장.",
+      "whenToUse": "감성 / 인용 카루셀.",
+      "structure": "한 슬라이드 80자 이하, 행간 1.6+",
+      "examples": "(1줄)\n(공백)\n(1줄)",
+      "tags": ["korean", "design"]
+    },
+    {
+      "name": "InsightFirst",
+      "category": "KoreanPatterns",
+      "description": "한국 SNS는 결론부터 — 호흡이 짧다.",
+      "whenToUse": "정보성 콘텐츠.",
+      "structure": "1슬라이드: 결론 → 2슬라이드 이후: 근거",
+      "examples": "1: AI 코드는 보안 2.74배 위험. 2-5: 데이터.",
+      "tags": ["korean", "structure"]
+    },
+    {
+      "name": "ConcreteExample",
+      "category": "KoreanPatterns",
+      "description": "추상 → 구체 예시. 한국 독자는 '예를 들면'을 찾는다.",
+      "whenToUse": "교육 / 설명.",
+      "structure": "추상 명제 1줄 → '예를 들면' → 구체 사례",
+      "examples": "추상: '5분 룰을 지켜라.' / 예: '브리프 30초, 템플릿 1분, 편집 3.5분.'",
+      "tags": ["korean", "pedagogy"]
+    },
+
+    {
+      "name": "Politics",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "정치 (선거, 정당, 정치인 발언) — 자동 강제 정지.",
+      "whenToUse": "사용자가 이 카테고리 키워드 입력 시 즉시 발행 차단.",
+      "structure": "keywords: ['선거','후보','정당','대통령','국회의원','보수','진보','좌파','우파']",
+      "examples": "차단: '대통령 발표 분석' → 강제 정지 + 한국어 메시지.",
+      "tags": ["sensitive", "block"]
+    },
+    {
+      "name": "Religion",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "종교 — 특정 종교 우열, 비교, 비방 차단.",
+      "whenToUse": "종교 키워드 + 평가 형용사 동시 등장 시.",
+      "structure": "keywords: ['기독교','불교','천주교','이슬람','종교 비교','우월','거짓']",
+      "examples": "차단: 'X 종교가 옳은 이유' → 정지.",
+      "tags": ["sensitive", "block"]
+    },
+    {
+      "name": "Discrimination",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "차별 (성별·인종·지역·장애) — 강제 정지.",
+      "whenToUse": "차별 표현 또는 비하 단어.",
+      "structure": "keywords: ['남녀차별','지역차별','장애비하','외국인 혐오','인종']",
+      "examples": "차단: '여성은 ___ 못한다' → 정지.",
+      "tags": ["sensitive", "block"]
+    },
+    {
+      "name": "MedicalAdvice",
+      "category": "SensitiveTopics",
+      "severity": 4,
+      "description": "의료 조언 — 진단·처방·치료 권유 차단.",
+      "whenToUse": "의료 진단/처방 키워드.",
+      "structure": "keywords: ['진단','처방','치료법','약 추천','수술','부작용']",
+      "examples": "차단: '두통은 ___로 치료' → 정지 + '의사에게 상담' 안내.",
+      "tags": ["sensitive", "medical", "block"]
+    },
+    {
+      "name": "Defamation",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "명예훼손 — 특정인 비난, 허위사실.",
+      "whenToUse": "실명 + 부정 형용사.",
+      "structure": "keywords: ['사기꾼','거짓말쟁이','범죄자' + 실명/회사명]",
+      "examples": "차단: '___는 사기꾼' → 정지.",
+      "tags": ["sensitive", "legal", "block"]
+    },
+    {
+      "name": "FinancialAdvice",
+      "category": "SensitiveTopics",
+      "severity": 4,
+      "description": "투자 / 재무 조언 — 종목 추천, 수익률 보장 차단.",
+      "whenToUse": "투자 권유 키워드.",
+      "structure": "keywords: ['종목 추천','수익률 보장','100% 수익','확실한 투자','코인 추천']",
+      "examples": "차단: '___ 코인 사라' → 정지.",
+      "tags": ["sensitive", "financial", "block"]
+    },
+    {
+      "name": "Adult",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "성인 콘텐츠 — 19금 표현 차단.",
+      "whenToUse": "성적 표현 / 폭력적 묘사.",
+      "structure": "keywords: ['19금','성행위','폭력 묘사','잔혹']",
+      "examples": "차단 + 정지.",
+      "tags": ["sensitive", "block"]
+    },
+    {
+      "name": "Hate",
+      "category": "SensitiveTopics",
+      "severity": 5,
+      "description": "혐오 표현 — 집단 비하, 폭력 선동.",
+      "whenToUse": "특정 집단 + 비하/폭력 동사.",
+      "structure": "keywords: ['혐오','말살','죽여라','꺼져라' + 집단명]",
+      "examples": "차단 + 정지.",
+      "tags": ["sensitive", "block"]
+    },
+    {
+      "name": "Privacy",
+      "category": "SensitiveTopics",
+      "severity": 4,
+      "description": "개인정보 노출 — 실명·주소·전화·주민번호.",
+      "whenToUse": "전화번호 패턴 / 주민번호 패턴 / 주소 패턴.",
+      "structure": "regex: '\\d{3}-\\d{4}-\\d{4}', '\\d{6}-\\d{7}', '[가-힣]{2,4} \\d+동 \\d+호'",
+      "examples": "차단: 'OOO 010-1234-5678' → 정지.",
+      "tags": ["sensitive", "pii", "block"]
+    },
+    {
+      "name": "MisleadingClaim",
+      "category": "SensitiveTopics",
+      "severity": 4,
+      "description": "허위 / 과장 광고 — '100% 보장','유일한','최초의' 등.",
+      "whenToUse": "절대 표현 + 검증 불가 주장.",
+      "structure": "keywords: ['100% 보장','유일한','최초의','부작용 0','효과 100%']",
+      "examples": "차단: '부작용 0% 보장' → 정지 + 표현 수정 권고.",
+      "tags": ["sensitive", "legal", "block"]
+    }
+  ]
+}

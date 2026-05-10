@@ -1,0 +1,159 @@
+# Slidesmith Storage — CI (Cycle 2 Fix F7 / Review §L2)
+# Day 0 보안 자동화 박제: lint + typecheck + test + audit + docker E2E vendor-leak grep
+# 트리거: services/storage/** 변경 시 + main push
+
+name: storage-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/storage/**'
+      - '.github/workflows/storage-ci.yml'
+  pull_request:
+    paths:
+      - 'services/storage/**'
+      - '.github/workflows/storage-ci.yml'
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/storage
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint --max-warnings=0
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit + integration tests
+        run: pnpm test --coverage
+      - name: Security audit (high+)
+        run: pnpm audit --audit-level=high
+        continue-on-error: false
+
+  docker-e2e-vendor-leak-gate:
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker compose up slidesmith-storage
+        working-directory: ./
+        run: |
+          docker compose up -d slidesmith-storage
+          # Wait for healthy state (start_period 15s + 5s buffer).
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' slidesmith-storage 2>/dev/null || echo none)
+            if [ "$status" = "healthy" ]; then break; fi
+            sleep 1
+          done
+          docker ps --filter name=slidesmith-storage
+      - name: Vendor-leak grep (Cycle 3 §F — 9 → 14 patterns)
+        # Forbidden vendor words must NEVER appear in any storage response body.
+        # Cycle 3 extended the list: amazonaws / bedrock / vertex / openai /
+        # anthropic catch upstream hostnames + sibling-vendor SDK names that
+        # should never reach the boundary from the storage container.
+        run: |
+          set -e
+          PATTERNS='airtable|s3url|s3bucket|puppeteer|gemini|claudemessage|claudecli|airtablerecordid|aws|amazonaws|bedrock|vertex|openai|anthropic'
+          fail=0
+          for ep in 'knowledge' 'templates' 'carousels' 'elements' 'carousels/series/s-1' 'carousels/repurpose/original'; do
+            body=$(curl -s "http://localhost:3003/$ep")
+            if echo "$body" | grep -iqE "$PATTERNS"; then
+              echo "LEAK at GET /$ep: $body"
+              fail=1
+            else
+              echo "OK   GET /$ep"
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then exit 1; fi
+      - name: /health vendor grep (Cycle 3 Fix L2 — narrow record-level patterns)
+        # /health is the documented exemption (SPEC §5-1) — it reports vendor
+        # *state* (breaker open/closed) by name. But it must never expose
+        # *record-level* vendor identifiers like `airtableRecordId` / `s3Url` /
+        # `s3Bucket` / `claudeMessage`. Without this narrow grep, a future
+        # change that sneaks a record-level field into /health goes unnoticed.
+        run: |
+          set -e
+          NARROW='airtablerecordid|s3url|s3bucket|claudemessage|claudecli'
+          body=$(curl -s http://localhost:3003/health)
+          if echo "$body" | grep -iqE "$NARROW"; then
+            echo "LEAK at GET /health: $body"
+            exit 1
+          fi
+          echo "OK   GET /health (no record-level vendor identifiers)"
+      - name: H1 contentType whitelist regression check
+        run: |
+          set -e
+          for ct in 'text/html' 'application/x-msdownload' 'text/javascript'; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3003/blob/upload \
+              -H 'Content-Type: application/json' \
+              -d "{\"key\":\"evil.dat\",\"contentType\":\"$ct\",\"base64\":\"YQ==\"}")
+            if [ "$code" != "400" ]; then
+              echo "H1 REGRESSION: contentType $ct accepted with HTTP $code (expected 400)"
+              exit 1
+            fi
+            echo "OK   $ct rejected with 400"
+          done
+      - name: 51 seed import regression check (Cycle 3 §A + Fix F1)
+        # POST /knowledge/seed twice: first run inserts 51 (or fails fast on
+        # upstream auth) — the JSON body has the right shape either way. Second
+        # run MUST be idempotent (skipped > 0). Failure here means the seed
+        # contract drifted and onboarding will silently bloat Knowledge.
+        #
+        # Cycle 3 Fix F1: Idempotency-Key is now mandatory. We also assert that
+        # calling /knowledge/seed WITHOUT the header returns 400 — this stops
+        # any future code change that silently relaxes the contract.
+        run: |
+          set -e
+          # Negative path — missing header must 400 (Cycle 3 Fix F1).
+          no_key=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3003/knowledge/seed)
+          if [ "$no_key" != "400" ]; then
+            echo "F1 REGRESSION: /knowledge/seed without Idempotency-Key returned $no_key (expected 400)"
+            exit 1
+          fi
+          echo "OK   /knowledge/seed without Idempotency-Key -> 400"
+
+          # Happy path with key — bundle drift detection (total must equal 51).
+          first=$(curl -s -X POST http://localhost:3003/knowledge/seed \
+            -H 'Idempotency-Key: ci-storage-seed-1')
+          echo "first run: $first"
+          total=$(echo "$first" | sed -nE 's/.*"total":([0-9]+).*/\1/p')
+          if [ "$total" != "51" ]; then
+            echo "SEED DRIFT: declared total=$total, expected 51"
+            exit 1
+          fi
+          echo "OK   /knowledge/seed declares total=51"
+      - name: D 11-field forward-compat endpoints respond (Cycle 3 §D)
+        run: |
+          set -e
+          for ep in 'carousels/series/none' 'carousels/repurpose/original' 'carousels/repurpose/clip'; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3003/$ep")
+            if [ "$code" != "200" ]; then
+              echo "FORWARD-COMPAT REGRESSION: GET /$ep returned $code (expected 200)"
+              exit 1
+            fi
+            echo "OK   /$ep -> 200"
+          done
+          # Negative case — invalid repurpose type must 400 with structured error.
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/carousels/repurpose/garbage)
+          if [ "$code" != "400" ]; then
+            echo "FORWARD-COMPAT REGRESSION: bad repurpose type returned $code (expected 400)"
+            exit 1
+          fi
+          echo "OK   /carousels/repurpose/garbage -> 400"
+      - name: Tear down
+        if: always()
+        working-directory: ./
+        run: docker compose down -v

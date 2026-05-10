@@ -1,0 +1,16 @@
+node_modules
+dist
+.cache
+.env
+.env.*
+!.env.example
+*.log
+coverage
+.nyc_output
+.DS_Store
+.git
+.gitignore
+.vscode
+.idea
+tests/**/*.snap
+README.md

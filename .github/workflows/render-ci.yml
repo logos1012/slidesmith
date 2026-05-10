@@ -1,0 +1,87 @@
+# Slidesmith Render — CI (Phase 6 Build)
+# Day 0 보안 + 95.80% coverage + R1+R2 보안 게이트 + SLO 60s
+# 트리거: services/render/** 변경 시 + main push
+
+name: render-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/render/**'
+      - '.github/workflows/render-ci.yml'
+  pull_request:
+    paths:
+      - 'services/render/**'
+      - '.github/workflows/render-ci.yml'
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/render
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint --max-warnings=0
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests with coverage
+        run: pnpm test --coverage
+      - name: Security audit (high+)
+        run: pnpm audit --audit-level=high
+        continue-on-error: false
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker compose up slidesmith-render
+        run: |
+          docker compose up -d slidesmith-render
+          for i in $(seq 1 60); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' slidesmith-render 2>/dev/null || echo none)
+            if [ "$status" = "healthy" ]; then break; fi
+            sleep 2
+          done
+          docker ps --filter name=slidesmith-render
+      - name: R1 redirect:manual + 3xx reject (TOCTOU SSRF defense)
+        # Cycle 3 Fix R1 — image-fetch.ts must use redirect:manual.
+        # If a future change re-introduces redirect:follow, this catches it.
+        run: |
+          set -e
+          if ! docker exec slidesmith-render grep -q 'redirect: "manual"' /app/src/lib/image-fetch.ts; then
+            echo "R1 REGRESSION: image-fetch.ts no longer uses redirect:manual"
+            exit 1
+          fi
+          echo "OK   image-fetch.ts uses redirect:manual"
+      - name: R2 signed URL log redaction
+        # Cycle 3 Fix R2 — never log raw URLs (signed URL leak).
+        # Trigger off-allowlist host fetch + grep logs for AWS sigv4 markers.
+        run: |
+          set -e
+          curl -s -X POST http://localhost:3002/render \
+            -H 'Content-Type: application/json' \
+            -d '{"slides":[{"id":"t1","html":"<img src=\"https://attacker.example.com/secret.png?X-Amz-Signature=DEADBEEF99887766&X-Amz-Credential=AKIATEST123\"/>"}]}' \
+            -o /dev/null -w 'HTTP=%{http_code}\n'
+          if docker compose logs slidesmith-render | grep -iE '(X-Amz-Signature|DEADBEEF99887766|AKIATEST123)'; then
+            echo "R2 REGRESSION: signed URL leaked into render logs"
+            docker compose logs slidesmith-render | tail -20
+            exit 1
+          fi
+          echo "OK   no signed URL leak in render logs"
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

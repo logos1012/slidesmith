@@ -1,0 +1,62 @@
+<!--
+  slide-frame.html — Cycle 2 reference. Generated dynamically by
+  src/lib/slide-html.ts; this file mirrors the canonical structure for docs
+  + visual-regression baselines.
+
+  Token contract (replaced by wrapSlideHtml):
+    {{WIDTH}}, {{HEIGHT}}              — viewport dims (DIMENSIONS table)
+    {{SLIDE_BG}}                       — slide background color
+    {{BRAND_COLOR_PRIMARY}}            — Brand DSL primary, scoped under
+                                         .slide-preview-container
+    {{BRAND_COLOR_ACCENT}}             — Brand DSL accent
+    {{BRAND_FONT_HEADING}}             — heading stack
+    {{BRAND_FONT_BODY}}                — body stack
+    {{FRAME_THICKNESS}}                — 1 or 2 px (DESIGN-v3 §8-1 adaptive)
+    {{IS_STRONG}}                      — "true" | "false" (data-strong-color)
+    {{BODY}}                           — user slide HTML
+    {{WATERMARK}}                      — empty or <div data-testid="watermark"…>
+-->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width={{WIDTH}}, initial-scale=1" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: {{WIDTH}}px;
+        height: {{HEIGHT}}px;
+        overflow: hidden;
+        background: {{SLIDE_BG}};
+        -webkit-font-smoothing: antialiased;
+      }
+      .slide-preview-container {
+        --brand-color-primary: {{BRAND_COLOR_PRIMARY}};
+        --brand-color-accent: {{BRAND_COLOR_ACCENT}};
+        --brand-font-heading: {{BRAND_FONT_HEADING}};
+        --brand-font-body: {{BRAND_FONT_BODY}};
+        width: {{WIDTH}}px;
+        height: {{HEIGHT}}px;
+        position: relative;
+        overflow: hidden;
+        background: {{SLIDE_BG}};
+        color: var(--brand-color-primary);
+        font-family: var(--brand-font-body);
+        border: {{FRAME_THICKNESS}}px solid var(--brand-color-primary);
+      }
+      .slide-preview-container h1,
+      .slide-preview-container h2,
+      .slide-preview-container h3,
+      .slide-preview-container h4 {
+        font-family: var(--brand-font-heading);
+        color: var(--brand-color-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-preview-container" data-strong-color="{{IS_STRONG}}" data-frame-thickness="{{FRAME_THICKNESS}}">
+      {{BODY}}
+      {{WATERMARK}}
+    </div>
+  </body>
+</html>

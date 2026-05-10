@@ -1,0 +1,72 @@
+# Slidesmith — root .gitignore (Phase 6 Fix F1)
+# git init 직전 박제. 다음 카테고리만 commit:
+#   - 소스 (src/, tests/, package.json, pnpm-lock.yaml, Dockerfile, docker-compose.yml)
+#   - 정적 자산 (public/)
+#   - 문서 (README.md, LICENSE, CHANGELOG.md, RELEASE_NOTES_*.md)
+#   - 시드 (seeds/)
+#   - .env.example (실 키 0)
+#   - .github/ (workflows, dependabot)
+
+# ── Secrets (절대 commit 금지) ─────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# ── Node ───────────────────────────────────────────────
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── TypeScript build outputs ───────────────────────────
+dist/
+build/
+*.tsbuildinfo
+
+# ── Next.js ────────────────────────────────────────────
+.next/
+out/
+next-env.d.ts
+
+# ── Test outputs ───────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ── Service runtime data (volumes / SQLite) ───────────
+data/
+*.sqlite
+*.sqlite-journal
+*.db
+public/uploads/
+
+# ── Caches ─────────────────────────────────────────────
+.cache/
+.turbo/
+.eslintcache
+.parcel-cache/
+.swc/
+
+# ── Logs ───────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS / Editor ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Docker ─────────────────────────────────────────────
+*.tar.gz
+docker-compose.override.yml

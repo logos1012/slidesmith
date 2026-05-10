@@ -1,0 +1,91 @@
+# Slidesmith Web — CI (Phase 6 Build update — Node 22, Playwright E2E)
+# Day 0 보안 자동화 박제: lint + typecheck + test + audit + Playwright + gitleaks
+# 트리거: services/web/** 변경 시 + main push
+
+name: web-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/web/**'
+      - '.github/workflows/web-ci.yml'
+  pull_request:
+    paths:
+      - 'services/web/**'
+      - '.github/workflows/web-ci.yml'
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks가 history scan
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint --max-warnings=0
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests with coverage
+        run: pnpm test --coverage
+      - name: Security audit (high+)
+        run: pnpm audit --audit-level=high
+        continue-on-error: false  # high 이상 취약점은 즉시 차단
+      - name: Build
+        run: pnpm build
+
+  e2e-playwright:
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Prepare .env (CI dummy keys)
+        run: cp .env.example .env
+      - name: docker compose up (4 services)
+        run: |
+          docker compose up -d
+          # Wait up to 180s for ALL 4 services to be healthy.
+          for i in $(seq 1 90); do
+            healthy=$(docker compose ps --format json 2>/dev/null | \
+              jq -s '[.[] | select(.Health=="healthy")] | length' 2>/dev/null || echo 0)
+            if [ "$healthy" = "4" ]; then break; fi
+            sleep 2
+          done
+          docker compose ps
+      - name: Install Playwright browsers
+        working-directory: services/web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps chromium
+      - name: Run Playwright tests (12 spec)
+        working-directory: services/web
+        env:
+          E2E_BASE_URL: http://localhost:3000
+        run: pnpm exec playwright test
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: services/web/playwright-report/
+          retention-days: 7
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

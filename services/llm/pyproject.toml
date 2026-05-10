@@ -1,0 +1,13 @@
+[project]
+name = "slidesmith-llm-py"
+version = "0.1.0"
+description = "Slidesmith LLM service — Python sidecar (Gemini image generation)"
+requires-python = ">=3.10"
+dependencies = [
+  "python-dotenv>=1.0",
+  "google-genai>=1.0",
+  "pillow>=10.0"
+]
+
+[tool.uv]
+package = false

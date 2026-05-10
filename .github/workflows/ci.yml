@@ -1,0 +1,118 @@
+# Slidesmith — Unified CI (Phase 6 Build)
+# 4 서비스 (web/llm/render/storage) matrix typecheck/lint/test/build + audit + gitleaks.
+# 각 서비스 specialised pipeline은 web-ci.yml / storage-ci.yml / llm-ci.yml /
+# render-ci.yml / integration-ci.yml 에 박제 (Playwright / vendor-leak grep / docker-compose smoke).
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  matrix-static-checks:
+    name: ${{ matrix.service }} static
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [web, llm, render, storage]
+    defaults:
+      run:
+        working-directory: services/${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.0.9'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint --max-warnings=0
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit + integration tests (with coverage)
+        run: pnpm test --coverage
+      - name: Security audit (high+)
+        # 4 서비스 모두 high 이상 취약점은 즉시 차단 (Day 0 보안)
+        run: pnpm audit --audit-level=high
+        continue-on-error: false
+
+  secret-scan:
+    name: gitleaks (history scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  license-check:
+    name: LICENSE + CHANGELOG presence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: LICENSE present + MIT
+        run: |
+          test -f LICENSE
+          grep -q "MIT License" LICENSE
+          echo "OK   LICENSE present + MIT"
+      - name: CHANGELOG present + has v1.0.0 entry
+        run: |
+          test -f CHANGELOG.md
+          grep -q "## \[1.0.0\]" CHANGELOG.md
+          echo "OK   CHANGELOG.md present + v1.0.0 entry"
+      - name: README + Done 12 매트릭스
+        run: |
+          test -f README.md
+          grep -q "Done 12 매트릭스" README.md
+          echo "OK   README.md present + Done 12 matrix"
+
+  docker-compose-smoke:
+    name: docker compose 4 서비스 healthy
+    runs-on: ubuntu-latest
+    needs: [matrix-static-checks]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare .env (CI dummy keys)
+        run: |
+          cp .env.example .env
+          # CI uses dummy keys — external API calls will 401/403 but services still healthy.
+      - name: docker compose up -d
+        run: |
+          START=$(date +%s)
+          docker compose up -d
+          # Wait up to 180s for ALL 4 services to be healthy.
+          for i in $(seq 1 90); do
+            healthy=$(docker compose ps --format json 2>/dev/null | \
+              jq -s '[.[] | select(.Health=="healthy")] | length' 2>/dev/null || echo 0)
+            if [ "$healthy" = "4" ]; then
+              END=$(date +%s)
+              echo "OK   4/4 services healthy in $((END-START))s"
+              docker compose ps
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "TIMEOUT — services not all healthy in 180s"
+          docker compose ps
+          docker compose logs --tail=50
+          exit 1
+      - name: Smoke /api/health/deps
+        run: |
+          curl -sf http://localhost:3000/api/health/deps | jq .
+          curl -sf http://localhost:3001/health | jq .
+          curl -sf http://localhost:3002/health | jq .
+          curl -sf http://localhost:3003/health | jq .
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

@@ -1,0 +1,53 @@
+{
+  "name": "@slidesmith/storage",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Slidesmith storage service — Knowledge / Templates / Carousels / Elements + S3 + Airtable",
+  "type": "module",
+  "main": "dist/server.js",
+  "packageManager": "pnpm@11.0.9",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json && pnpm run build:assets",
+    "build:assets": "node -e \"const fs=require('fs');const path=require('path');fs.mkdirSync('dist/seed',{recursive:true});fs.copyFileSync('src/seed/knowledge-51.json','dist/seed/knowledge-51.json');\"",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "seed:knowledge": "tsx src/scripts/seed-knowledge.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.654.0",
+    "@aws-sdk/s3-request-presigner": "^3.654.0",
+    "@hono/node-server": "^1.13.7",
+    "airtable": "^0.12.2",
+    "hono": "^4.6.10",
+    "lru-cache": "^11.0.2",
+    "nanoid": "^5.0.7",
+    "opossum": "^8.4.0",
+    "p-limit": "^5.0.0",
+    "pino": "^9.5.0",
+    "pino-roll": "^2.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@types/node": "^20.16.5",
+    "@types/opossum": "^8.1.8",
+    "@vitest/coverage-v8": "^2.1.1",
+    "eslint": "^9.10.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.59.2",
+    "vitest": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
