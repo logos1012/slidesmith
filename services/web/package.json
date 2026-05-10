@@ -36,7 +36,7 @@
     "pino-roll": "^2.0.0",
     "p-limit": "^5.0.0",
     "opossum": "^8.4.0",
-    "better-sqlite3": "^11.3.0",
+    "better-sqlite3": "^12.9.0",
     "uuid": "^10.0.0",
     "date-fns": "^4.1.0",
     "eventsource-parser": "^1.1.2",
