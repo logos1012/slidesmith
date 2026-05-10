@@ -1,7 +1,7 @@
 # slidesmith-llm — multi-stage (node + python)
 # SPEC: docs/services/SERVICE-llm.md §2
 
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 # packageManager field in package.json pins pnpm@11.0.9 → corepack avoids
 # fetching latest metadata (which fails on older alpine corepack signatures).
@@ -11,7 +11,7 @@ COPY package.json pnpm-lock.yaml* .npmrc pnpm-workspace.yaml ./
 RUN corepack enable && corepack prepare pnpm@11.0.9 --activate && \
     pnpm install --frozen-lockfile
 
-FROM node:22-alpine AS dev
+FROM node:26-alpine AS dev
 WORKDIR /app
 RUN apk add --no-cache python3 py3-pip wget tini curl && \
     python3 -m venv /opt/venv && \
@@ -31,14 +31,14 @@ EXPOSE 3001
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["pnpm", "dev"]
 
-FROM node:22-alpine AS prod-build
+FROM node:26-alpine AS prod-build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable && corepack prepare pnpm@11.0.9 --activate && pnpm build
 
-FROM node:22-alpine AS prod
+FROM node:26-alpine AS prod
 WORKDIR /app
 RUN apk add --no-cache python3 py3-pip wget tini && \
     python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip uv && \
