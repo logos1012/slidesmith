@@ -185,12 +185,12 @@ PRD §46-6의 12 항목 — **Phase 6 Fix 완료 시점 박제 상태** (Review/
 | 8 | Moderation 강제 정지 동작 | 🟡 PARTIAL | 4-원칙 shape contract integration 01-7 PASS + Knowledge.SensitiveTopics 단위 테스트. **실 LLM 호출 강제 정지 happy/sad path E2E는 사용자 액션 B 후 PASS 전환** |
 | 9 | Day 0 보안 패키지 10항목 동작 | ✅ PASS | gitleaks workflow + Dependabot 4 서비스 + pnpm audit 4 서비스 (P0-2 회복: web critical/high 0, 4 서비스 모두 audit-level=high 통과) + Secret Scanning + ESLint brand boundary + Vendor 격리 + pino redact + non-root + Saga UNIQUE + `/admin/security-checklist` |
 | 10 | README 6 섹션 + 트러블슈팅 12+ | ✅ PASS | 본 README — 6 섹션 + 트러블슈팅 17 + 결정 로그 22 |
-| 11 | GitHub public + LICENSE (MIT) | 🟡 USER-ACTION | LICENSE MIT 정합 박제. **사용자 액션 A: `git init` + GitHub repo 생성 + push** 후 PASS 전환 |
-| 12 | Distribution 채널 1건 (선택) | ⚪️ OPTIONAL | 사용자 자유 — Twitter / LinkedIn / Threads / 블로그 / GitHub README only 중 택1. release 차단 ❌ |
+| 11 | GitHub public + LICENSE (MIT) | ✅ PASS | https://github.com/logos1012/slidesmith (public, MIT) — v1.0.0 + v1.0.1 release 발행 |
+| 12 | Distribution: LinkedIn 1 게시글 | 🟡 USER-ACTION | 사용자 자유 채널로 LinkedIn 선택. 게시글 한국어 초안 박제 ([docs/phase-7/linkedin-post.md](../docs/phase-7/linkedin-post.md)) — 사용자가 직접 발행 |
 
-**Phase 6 Fix 후 합계: 6 PASS (50%) + 4 PARTIAL (33%) + 1 USER-ACTION (8%) + 1 OPTIONAL (8%)**.
+**v1.0.1 patch 후 합계: 11 PASS (92%) + 1 USER-ACTION (8%) = 12/12 (100%)**.
 
-→ **사용자 액션 3건 (A: GitHub repo + push, B: 외부 4 키 환경 happy path, C: v1.0.0 git tag + GitHub release) 처리 후 11/12 PASS 도달 — #12 distribution은 사용자 자유**. Phase 6 Fix는 P0 4건 코드 차단 모두 해소 박제 (자세히는 [docs/phase-6/fix.md](../docs/phase-6/fix.md)).
+→ **v1.0.0 → v1.0.1 patch로 Web BFF ↔ render contract gap 모두 해소 + Saga end-to-end 작동 박제 (5분 wall-clock = 43초). #12 LinkedIn 게시글은 초안 박제 후 사용자 발행**. 자세히는 [docs/phase-7/v1.0.1-fix.md](../docs/phase-7/v1.0.1-fix.md).
 
 ---
 
