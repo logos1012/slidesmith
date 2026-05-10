@@ -29,7 +29,7 @@
     "nanoid": "^5.0.7",
     "opossum": "^8.4.0",
     "p-limit": "^5.0.0",
-    "pdfkit": "^0.15.0",
+    "pdfkit": "^0.18.0",
     "pino": "^9.5.0",
     "puppeteer-core": "^23.6.0",
     "sharp": "^0.34.0",
