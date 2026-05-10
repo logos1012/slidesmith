@@ -73,8 +73,11 @@ export interface WrapOptions {
   size?: SlideSize;
 }
 
-const DEFAULT_PRIMARY = "#111111";
-const DEFAULT_ACCENT = "#3366ff";
+// Loop 2 Aurora swap (D-aurora-1, 2026-05-10):
+//   - default primary/accent → Aurora deep ink (#170d2e) + violet (#7c5cff).
+//   - 사용자 brand DSL이 들어오면 그대로 (Layer 1 boundary 그대로 — 사용자 색이 우선).
+const DEFAULT_PRIMARY = "#170d2e";
+const DEFAULT_ACCENT = "#7c5cff";
 // Cycle 3 — DESIGN-v3 §2-1 token mapping inside the slide page:
 //   - heading default = Editorial serif (Noto Serif KR Bold) → "신문 1면" 미학
 //   - body default = Pretendard Variable (sans) → 한국어 가독성 + dyslexia 대응

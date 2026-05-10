@@ -23,20 +23,21 @@ const config = [
     files: ['src/**/*.{ts,tsx}'],
     rules: {
       'no-process-env': 'error',
-      // Cycle 2 Fix (F6, 🟠-9): Brand boundary 영구 박제.
-      //   `--brand-color-*` CSS 변수는 SlidePreviewBoundary 안에서만 set 가능.
-      //   다른 컴포넌트가 style={{ '--brand-color-primary': ... }}로 침투 시 lint 에러.
+      // Loop 1 Build (D-aurora-1, 2026-05-10): Aurora boundary 박제 (monochrome 정책 폐기).
+      //   도구 UI = Aurora 토큰 자유 (--aurora-*, --grad-*, semantic alias).
+      //   사용자 brand DSL `--brand-color-*` 는 SlidePreviewBoundary 안에서만 set 가능.
+      //   격리 메커니즘은 monochrome 시절과 동일 — 토큰 namespace 분리만 유지 (Layer 1).
       'no-restricted-syntax': [
         'error',
         {
           selector: "Property[key.value=/^--brand-color-/]",
           message:
-            '--brand-color-* 토큰은 src/components/slide-preview-boundary.tsx 안에서만 set 가능 (DESIGN-v3 §1-1-3 monochrome boundary).',
+            '--brand-color-* 토큰은 src/components/slide-preview-boundary.tsx 안에서만 set 가능 (DESIGN-v3 §1-1-3 Aurora × Brand DSL boundary).',
         },
         {
           selector: "Literal[value=/var\\(--brand-color-/]",
           message:
-            'var(--brand-color-*)는 src/components/slide-preview-boundary.tsx 안에서만 사용 가능 (DESIGN-v3 §1-1-3).',
+            'var(--brand-color-*)는 src/components/slide-preview-boundary.tsx 안에서만 사용 가능 (DESIGN-v3 §1-1-3 Aurora × Brand DSL boundary).',
         },
       ],
       'no-restricted-imports': [
@@ -112,7 +113,7 @@ const config = [
     rules: { 'no-restricted-imports': 'off' },
   },
   {
-    // Cycle 2 Fix (F6, 🟠-9): SlidePreviewBoundary는 brand 토큰 set의 단일 진입점 — 예외.
+    // SlidePreviewBoundary는 brand 토큰 set의 단일 진입점 — Aurora swap 후에도 동일.
     files: ['src/components/slide-preview-boundary.tsx'],
     rules: { 'no-restricted-syntax': 'off' },
   },

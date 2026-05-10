@@ -1,29 +1,46 @@
-// HealthDepsBanner — 9-light status (DESIGN-v3 §3-12)
+// HealthDepsBanner — 9-light status (DESIGN-v3 §3-12, Aurora swap Loop 2 Build 2026-05-10).
 // 4 서비스 (web/llm/render/storage) + 4 외부 (anthropic/airtable/s3/gemini) + 1 saga = 9.
-// Monochrome dot styling — 텍스트 + 아이콘 + 점선 5-channel ARIA.
+// Aurora dot styling — violet (ok) / mint (success accent) / amber (warn) / danger (down).
+//   carousel design/aurora-3.jsx AuroraHealth `.lite-up/.lite-warn/.lite-down` 흡수.
 'use client';
 import { useEffect, useState } from 'react';
 import type { DepStatus, ServiceStatus } from '@/types/foundation';
 
 interface DepsResponse {
-  web: DepStatus; llm: DepStatus; render: DepStatus; storage: DepStatus;
+  web: DepStatus;
+  llm: DepStatus;
+  render: DepStatus;
+  storage: DepStatus;
   external: { anthropic: DepStatus; airtable: DepStatus; s3: DepStatus; gemini: DepStatus };
   saga?: DepStatus;
 }
 
 const LABELS: Array<[string, (d: DepsResponse) => DepStatus]> = [
-  ['web', (d) => d.web], ['llm', (d) => d.llm], ['render', (d) => d.render],
-  ['storage', (d) => d.storage], ['anthropic', (d) => d.external.anthropic],
-  ['airtable', (d) => d.external.airtable], ['s3', (d) => d.external.s3],
-  ['gemini', (d) => d.external.gemini], ['saga', (d) => d.saga ?? { status: 'ok', responseMs: 0 }],
+  ['web', (d) => d.web],
+  ['llm', (d) => d.llm],
+  ['render', (d) => d.render],
+  ['storage', (d) => d.storage],
+  ['anthropic', (d) => d.external.anthropic],
+  ['airtable', (d) => d.external.airtable],
+  ['s3', (d) => d.external.s3],
+  ['gemini', (d) => d.external.gemini],
+  ['saga', (d) => d.saga ?? { status: 'ok', responseMs: 0 }],
 ];
 
-const DOT: Record<ServiceStatus, string> = {
-  ok: 'bg-text', degraded: 'bg-text-muted border border-text-muted',
-  down: 'bg-bg border-2 border-dashed border-text', unknown: 'bg-bg border border-text-subtle',
+// Aurora dot colors per status — Layer 1 격리: 도구 UI 토큰 (--aurora-*) 사용, brand DSL과 무관.
+const DOT_STYLE: Record<ServiceStatus, React.CSSProperties> = {
+  ok: { background: 'var(--aurora-success)' },
+  degraded: { background: 'var(--aurora-amber)' },
+  down: { background: 'var(--aurora-danger)' },
+  unknown: { background: 'var(--aurora-line-2)', border: '1px dashed var(--aurora-ink-3)' },
 };
 
-const ICON: Record<ServiceStatus, string> = { ok: '●', degraded: '◐', down: '✗', unknown: '○' };
+const ICON: Record<ServiceStatus, string> = {
+  ok: '●',
+  degraded: '◐',
+  down: '✗',
+  unknown: '○',
+};
 
 export function HealthDepsBanner({ pollMs = 5000 }: { pollMs?: number }) {
   const [data, setData] = useState<DepsResponse | null>(null);
@@ -35,23 +52,35 @@ export function HealthDepsBanner({ pollMs = 5000 }: { pollMs?: number }) {
         if (!r.ok) return;
         const j = (await r.json()) as DepsResponse;
         if (!cancelled) setData(j);
-      } catch { /* tolerate transient errors */ }
+      } catch {
+        /* tolerate transient errors */
+      }
     }
     void tick();
     const id = setInterval(tick, pollMs);
-    return () => { cancelled = true; clearInterval(id); };
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
   }, [pollMs]);
   if (!data) return null;
   return (
-    <div role="status" aria-label="System dependencies"
-      className="flex flex-wrap items-center gap-3 border border-border bg-surface px-3 py-2 text-xs text-text-muted">
+    <div
+      role="status"
+      aria-label="System dependencies"
+      className="flex flex-wrap items-center gap-3 rounded-[12px] border bg-aurora-surface px-3 py-2 text-xs text-ink-2"
+      style={{ borderColor: 'var(--aurora-line)' }}>
       {LABELS.map(([name, pick]) => {
         const s = pick(data).status;
         return (
           <span key={name} className="inline-flex items-center gap-1.5">
-            <span aria-hidden className={`h-2 w-2 rounded-full ${DOT[s]}`} />
-            <span aria-label={`${name} ${s}`}>{name}</span>
-            <span aria-hidden className="text-text-subtle">{ICON[s]}</span>
+            <span aria-hidden className="h-2 w-2 rounded-full" style={DOT_STYLE[s]} />
+            <span aria-label={`${name} ${s}`} className="font-medium">
+              {name}
+            </span>
+            <span aria-hidden className="font-mono text-ink-3">
+              {ICON[s]}
+            </span>
           </span>
         );
       })}

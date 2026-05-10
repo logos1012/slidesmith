@@ -105,12 +105,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [1.1.0] — 2026-05-10 (Aurora Redesign — Loop 1+2+3 Build)
 
-> Phase 6 Review/Test/Fix 단계 결과 + v1.0.0 tag 직후 사용자 피드백 박제.
+> Slidesmith **도구 UI 전체 Aurora 재설계** 완료. Layer 1 격리 메커니즘 (`--brand-color-*` namespace ⟂ `--aurora-*`)은 동일 — 사용자 carousel 결과물 변화 0. 4 마이크로서비스 영향 0 (web src + render `slide-html.ts` defaults 2 hex만 swap).
+
+### Added — Loop 1 (design system + Landing/Layout, 2026-05-10)
+
+- **Aurora 25 토큰 박제** — `services/web/src/styles/globals.css`의 `.dir-aurora`에 carousel design `styles.css` byte-for-byte 정합 (vibrant gradient + glassy: violet `#7c5cff`, mint `#46e0c6`, amber `#ffb547`, danger `#f04a6b`, ink-deep `#170d2e`, grad-hero/grad-button/grad-card, shadow-card/button, radius-*).
+- **Sidebar 64px + 5 nav** (Plus/Layers/Sparkles/Cloud/Shield) + 좌측 violet bar.
+- **TopBar 48px** + Logo + breadcrumb + right slot.
+- **Landing (`/`) Hero/DemoCard/Insights** — aurora-1.jsx 13 패턴 박제.
+- **Layout `font-sans` body** + themeBootstrap inline script (dark variant SSR flash 방지).
+- **6-Layer Defense** — Layer 1 `--brand-color-*` slide-preview 자손 한정 / Layer 2 Tailwind family 미노출 / Layer 3 ESLint Property+Literal / Layer 4 WatermarkRenderer parent.closest dev assert / Layer 5 visual regression baseline (Loop 3) / Layer 6 themeBootstrap dark variant.
+- **D-aurora-1 결정** (§40 #51) — monochrome editorial 정책 폐기, Aurora vibrant gradient + glassy + creator-friendly로 swap.
+
+### Added — Loop 2 (Wizard/Components/Slide template, 2026-05-10)
+
+- **Aurora primitives** (`AuroraCard` / `AuroraChip` / `AuroraButton` / `AuroraBar` / `AuroraStepRail` / `AuroraOptionGroup`).
+- **Wizard 5 step rewrite** — Step 1 (AuroraBrief big-input + AuroraOptionGroup) / Step 2 (5색 violet→pink spectrum gradient thumbnail) / Step 3 (hsl-spectrum 인덱스 박스 + AuroraChip + SlideEditCard) / Step 4 (aurora-card chrome + WatermarkFieldset + RenderPreviewGrid + SlidePreviewBoundary Layer 1 격리) / Step 5 (SagaPipelinePreview + ModerationCard + PublishResultCard 3 분기 mint/amber/danger 톤).
+- **Components Aurora swap** — `health-deps-banner.tsx` (Aurora 4 톤 dot strip), `chat-sidebar.tsx` (violet user bubble + glassy assistant bubble), `slide-preview-boundary.tsx` (`data-slide-preview="true"` attribute 박제), `admin/security-checklist/page.tsx` (Sidebar + TopBar + BigStat + 10 항목 aurora-card).
+- **Slide template Aurora 적용** — web BFF `lib/content-to-html.ts` (light=cream gradient + violet accent / dark=violet→pink + white) + render service `slide-html.ts` (DEFAULT_PRIMARY `#170d2e` + DEFAULT_ACCENT `#7c5cff`). Brand DSL boundary는 그대로 (Layer 1 격리).
+- **50줄 룰 sub-component 분리** (Loop 2 Fix) — Step 3/4/5 main 함수 ~130/~130/~165 → ~105/~87/~119 LOC.
+
+### Added — Loop 3 (Tests + E2E + Docs swap, 2026-05-10 — 본 release)
+
+- **E2E rename** — `06-monochrome-boundary.spec.ts` → `06-aurora-boundary.spec.ts` (3/3 tests PASS, Aurora 토큰 적용 박제 assertion 추가).
+- **AuroraStepRail aria-label fix** — `<ol aria-label="wizard progress">` 위치 수정 (Loop 2 wizard-container rewrite 회귀 해소, E2E 01-onboard PASS 복원).
+- **DESIGN-v3.md 본문 카피 swap** — §1 헤더 / §1-1-1 Status 주석 / §1-4 Tailwind config / §5-1 4 services 매트릭스 / §6-1 BC Visual Identity 표 8 셀 / §12-3 watermark fallback / §13 Anti-positioning 헤더 + 매트릭스 / §17 Welcome 1줄 / §18 Editorial 미학 정당성 + About 풀 본문 / §19 Aesthetic Boredom + framing 메커니즘 / §20 Motion spec 헤더. monochrome editorial framing 모두 Aurora 의미로 swap. 격리 메커니즘 카피는 동일.
+- **Health endpoint version 1.1.0** — `services/web/tests/unit/health.test.ts` `expect(version).toBe('1.1.0')` 박제.
+- **4 서비스 package.json version 1.0.0 → 1.1.0** — web, llm, render, storage 모두.
+
+### Performance (Loop 3 박제)
+
+| 지표 | v1.0.0 | v1.1.0 (Loop 3) |
+|---|---|---|
+| 5분 onboard wall-clock (5-slide LLM + Saga) | 43s | **44s** (회귀 0, ceiling 60s) |
+| web unit tests | 80 PASS | **90 PASS** (10 추가 — wizard primitives + Aurora swap 검증) |
+| render unit tests | 100 PASS | 100 PASS |
+| storage unit tests | 205 PASS | 205 PASS |
+| llm unit tests | 199 PASS | 199 PASS |
+| **총 unit tests** | **584 PASS** | **594 PASS** (+10) |
+| Playwright E2E (06 Aurora boundary) | 2 PASS | **3 PASS** (+1 Aurora 토큰 적용 박제) |
+| Integration E2E | 19 PASS / 1 pre-existing fail (01-6 knowledge BFF schema) | 19 PASS / 1 pre-existing fail (회귀 0) |
+
+### 회귀 0 박제 (4 마이크로서비스 + Saga + 보안)
+
+- 4 마이크로서비스 healthy (docker compose 4/4)
+- `/api/health` version 1.1.0 + uptime 정상
+- Saga 5-step success / partial / orphan 3 분기 모두 작동
+- 11 forward-compat (typecheck + contract test)
+- 보안 6 critical (pino redact / env 단일 / ZIP traversal / CSP / sanitize / no-process-env)
+- Vendor 격리 14-pattern (no-restricted-imports)
+- 3-Layer DI (container.test PASS)
+- Brand DSL Layer 1 격리 (`--brand-color-*` curl HTML 0건; admin literal text 1건 = 자기 정책 선언)
+- ESLint Aurora boundary (Property + Literal + slide-preview-boundary 예외)
+- themeBootstrap inline script (dark variant hydration 0 깜빡임)
+
+### Decisions — v1.1.0 핵심 결정
+
+`docs/DESIGN-v3.md` §40 Decision Log #51 D-aurora-1 + §41 Approval row 정합. monochrome editorial 정책 → Aurora vibrant gradient + glassy + creator-friendly swap.
+
+### Known Limits (v1.2 carry)
+
+- **Pretendard self-host + `font-display: optional`** (Loop 1 review m4) — 폰트 자산 추가 = scope 폭발 위험.
+- **LLM slideCount 강제 prompt** (Loop 2 build §6-4 ⚠️) — render zod cap (≤5).
+- **Visual regression baseline 자동 캡처** — Loop 3는 manual baseline 권고만 박제 (Playwright snapshot 추가는 v1.1.1 patch 후보).
+- **aurora-2.jsx Brand DSL right panel + 9-light card grid + 30 hashtag explicit grid** (Loop 2 review m6).
+- **Integration 01-6 web /api/knowledge BFF schema mismatch** (`examples` 필드 zod 미스매치) — pre-existing v1.0.0 이슈, Aurora 무관.
+- **E2E 03/04/05 strict 207 assertion** — Saga가 CI dummy keys에서도 200 success 반환 (storage/airtable mock-success), pre-existing v1.0.0 테스트 logic 이슈, Aurora 무관.
+
+---
+
+## [Unreleased]
 
 (아직 없음)
 
 ---
 
+[1.1.0]: https://github.com/logos1012/slidesmith/releases/tag/v1.1.0
 [1.0.0]: https://github.com/logos1012/slidesmith/releases/tag/v1.0.0

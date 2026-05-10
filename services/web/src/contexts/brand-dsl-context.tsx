@@ -1,6 +1,7 @@
 // contexts/brand-dsl-context.tsx — Brand DSL Provider (DESIGN-v3 §1-1-3 단일 진입점)
 // 사용자 carousel 컬러 격리 — `--brand-color-*`는 SlidePreviewBoundary 안에서만 set.
-// 도구 UI는 monochrome (`--color-*`) 만 사용. 침투 0.
+// 도구 UI는 Aurora 토큰 (`--aurora-*` + semantic alias `--color-*`) 사용. 침투 0 (Layer 1 격리).
+// Loop 2 Build (D-aurora-1, 2026-05-10): monochrome 카피 → Aurora 의미 swap.
 'use client';
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { BrandDsl } from '@/repositories/interfaces/IRenderGateway';

@@ -155,8 +155,8 @@ describe("wrapSlideHtml (Cycle 2)", () => {
     });
     expect(html).not.toContain("<script>alert(1)</script>");
     expect(html).not.toContain("background: url(x)");
-    // sanitized fallback color
-    expect(html).toContain("--brand-color-primary: #111111");
+    // sanitized fallback color (Loop 2 Aurora swap: ink-deep #170d2e default).
+    expect(html).toContain("--brand-color-primary: #170d2e");
   });
 
   it("supports bottom-left and bottom-center watermark positions", () => {

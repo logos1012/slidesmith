@@ -1,38 +1,48 @@
-import Link from 'next/link';
-import { branding } from '@/lib/branding';
+// Aurora Landing (Loop 1 Build 2026-05-10) — DESIGN-v3 §3 Aurora swap.
+// carousel design/aurora-1.jsx AuroraLanding 흡수 + 한국어 카피 보존.
+import { Sidebar } from '@/components/layout/sidebar';
+import { TopBar } from '@/components/layout/top-bar';
+import { LandingHero } from '@/components/landing/hero';
+import { LandingDemoCard } from '@/components/landing/demo-card';
+import { LandingInsights } from '@/components/landing/insights-panel';
 import { HealthDepsBanner } from '@/components/health-deps-banner';
 
-// Landing — DESIGN-v3 §3: 5초 hero copy + 단일 CTA (monochrome editorial)
-// Cycle 2: HealthDepsBanner 9-light 박제 + /new 위저드 entry.
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-      <div className="absolute top-0 left-0 right-0">
-        <HealthDepsBanner />
+    <div className="flex h-screen w-screen overflow-hidden">
+      <Sidebar activeIndex={1} />
+      <div className="flex flex-1 flex-col">
+        <TopBar
+          crumbs={['홈']}
+          right={
+            <>
+              <span
+                className="aurora-tag"
+                style={{
+                  background: 'rgba(124,92,255,.08)',
+                  color: 'var(--aurora-violet-2)',
+                  borderColor: 'rgba(124,92,255,.18)',
+                }}>
+                4 services healthy
+              </span>
+              <span
+                aria-hidden
+                className="block h-7 w-7 rounded-full bg-grad-button"
+              />
+            </>
+          }
+        />
+        <div className="flex-1 overflow-auto bg-grad-hero p-8">
+          <div className="mx-auto max-w-[920px]">
+            <LandingHero />
+            <LandingDemoCard />
+            <LandingInsights />
+            <div className="mt-6 aurora-card p-3.5">
+              <HealthDepsBanner />
+            </div>
+          </div>
+        </div>
       </div>
-      <section className="max-w-2xl w-full text-center">
-        <p className="text-text-subtle text-sm uppercase tracking-[0.2em] mb-6">
-          {branding.productName}
-        </p>
-        <h1 className="text-text text-4xl md:text-5xl font-bold leading-tight mb-4">
-          {branding.tagline}
-        </h1>
-        <p className="text-text-muted text-base md:text-lg mb-12">
-          위저드 5단계로 인스타 카루셀을 발행 단계까지 끌고 갑니다.
-        </p>
-        <Link
-          href="/new"
-          className="inline-flex items-center justify-center rounded-md bg-active text-active-text px-8 py-3 text-base font-medium border border-border-strong hover:bg-text transition-colors"
-        >
-          + 새 카루셀 만들기
-        </Link>
-      </section>
-
-      <footer className="absolute bottom-6 text-text-subtle text-xs">
-        <a href={branding.githubRepo} target="_blank" rel="noreferrer" className="hover:text-text-muted">
-          GitHub
-        </a>
-      </footer>
-    </main>
+    </div>
   );
 }

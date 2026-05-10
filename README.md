@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Made for Solo Creators](https://img.shields.io/badge/made%20for-solo%20creators-blue)](README.md)
-[![v1.0.0](https://img.shields.io/badge/version-1.0.0-green)](CHANGELOG.md)
+[![v1.1.0](https://img.shields.io/badge/version-1.1.0-green)](CHANGELOG.md) [![Aurora redesign](https://img.shields.io/badge/UI-Aurora%20vibrant-7c5cff)](docs/aurora/)
 
 > 영문 README는 [README.en.md](README.en.md) (TBD).
 

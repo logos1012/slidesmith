@@ -26,7 +26,7 @@ describe('/api/health', () => {
     const res = healthGET();
     const body = await res.json();
     expect(body.version).toBe(pkg.version);
-    expect(body.version).toBe('1.0.0');
+    expect(body.version).toBe('1.1.0');
   });
 });
 
