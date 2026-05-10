@@ -176,11 +176,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] — 2026-05-10 (Templates seed 정식 박제)
+
+> PRD §5-2 v1.0 누락이었던 Templates seed를 코드로 영구 박제. knowledge-seed 패턴 1:1 mirror (5층: JSON/loader/service/route/test) + Aurora 3 templates reproducibility + CI regression check 3단계.
+
+### Added — Templates seed (storage only, web/llm/render 무수정)
+
+- **`services/storage/src/seed/templates-default.json`** — Aurora Light / Vibrant / Editorial 3 templates bundle (totalCount + items, v1.0 정식 박제)
+- **`services/storage/src/seed/load-templates-default.ts`** — Zod 검증 + LRU 캐시 로더 (`loadKnowledge51` mirror)
+- **`services/storage/src/seed/seed-templates-service.ts`** — `seedTemplates(repo)` — `findByName` 기반 idempotent upsert + sanitised failure report
+- **`ITemplateRepo.findByName(name)`** — Airtable filterByFormula escape 포함 (`\\`/`"`/`'`/CRLF 4종)
+- **`POST /templates/seed`** — Idempotency-Key required (trim 검사), acquireOrCreate LRU, Korean 400 userMessage, sanitised 502
+- **CI: Templates seed import regression check** (3단계: 헤더 누락 → 400 / `total=3` / 2차 `inserted=0`)
+- **신규 unit 6 + integration 7** (총 218 PASS, 기존 205 회귀 0)
+
+### Fixed
+
+- **Y1 (Review)**: `services/storage/package.json` version `1.1.0` → `1.1.2` (version 미갱신 해소)
+- **4 서비스 package.json** version `1.1.0` → `1.1.2` — web / llm / render / storage 모두
+- **F2**: `services/web/tests/unit/health.test.ts` `'1.1.0'` → `'1.1.2'` (package.json 정합 박제)
+
+### Changed (CI — Y2 symmetry fix)
+
+- **`.github/workflows/storage-ci.yml`**: 51 seed regression check step에 2차 idempotency 검증 추가 — templates step과 symmetric (헤더 누락 400 / total=51 / 2차 inserted=0 3단계 완성)
+
+### Verification
+
+- 218 tests PASS (storage 24 files — 기존 205 + 신규 13)
+- vendor 격리 14-pattern 클린 (responses에 airtable/aws/amazonaws/s3/anthropic 등 0건)
+- Aurora 박제 회귀 0 (web/llm/render 무수정, Aurora Light/Vibrant/Editorial 그대로)
+- `POST /templates/seed` 5x concurrent same-key → 1 instance PASS
+- dist/seed/templates-default.json 빌드 아티팩트 박제
+
+---
+
 ## [Unreleased]
 
 (아직 없음)
 
 ---
 
+[1.1.2]: https://github.com/logos1012/slidesmith/releases/tag/v1.1.2
 [1.1.0]: https://github.com/logos1012/slidesmith/releases/tag/v1.1.0
 [1.0.0]: https://github.com/logos1012/slidesmith/releases/tag/v1.0.0

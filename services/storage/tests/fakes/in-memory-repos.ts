@@ -162,6 +162,13 @@ export class FakeTemplateRepo implements ITemplateRepo {
   async delete(idArg: string): Promise<boolean> {
     return this.store.delete(idArg);
   }
+
+  async findByName(name: string): Promise<TemplateItem | null> {
+    for (const item of this.store.values()) {
+      if (item.name === name) return item;
+    }
+    return null;
+  }
 }
 
 export class FakeCarouselRepo implements ICarouselRepo {

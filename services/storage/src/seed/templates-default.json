@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "totalCount": 3,
+  "items": [
+    {
+      "name": "Aurora Light",
+      "schema": { "layout": "hero-stack", "bg": "cream-gradient", "accent": "violet" },
+      "narrative_arc": "BeforeAfter",
+      "files": ["aurora-light.html"],
+      "version": "1.0.0"
+    },
+    {
+      "name": "Aurora Vibrant",
+      "schema": { "layout": "hero-stack", "bg": "violet-pink-gradient", "accent": "white" },
+      "narrative_arc": "ProblemSolution",
+      "files": ["aurora-vibrant.html"],
+      "version": "1.0.0"
+    },
+    {
+      "name": "Aurora Editorial",
+      "schema": { "layout": "hero-stack", "bg": "white", "accent": "ink-deep", "font": "serif" },
+      "narrative_arc": "List",
+      "files": ["aurora-editorial.html"],
+      "version": "1.0.0"
+    }
+  ]
+}

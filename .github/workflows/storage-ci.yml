@@ -106,15 +106,18 @@ jobs:
             fi
             echo "OK   $ct rejected with 400"
           done
-      - name: 51 seed import regression check (Cycle 3 §A + Fix F1)
+      - name: 51 seed import regression check (Cycle 3 §A + Fix F1 + v1.1.2 Y2 symmetry)
         # POST /knowledge/seed twice: first run inserts 51 (or fails fast on
         # upstream auth) — the JSON body has the right shape either way. Second
-        # run MUST be idempotent (skipped > 0). Failure here means the seed
+        # run MUST be idempotent (inserted=0). Failure here means the seed
         # contract drifted and onboarding will silently bloat Knowledge.
         #
         # Cycle 3 Fix F1: Idempotency-Key is now mandatory. We also assert that
         # calling /knowledge/seed WITHOUT the header returns 400 — this stops
         # any future code change that silently relaxes the contract.
+        #
+        # v1.1.2 Y2: 2차 idempotency 검증 추가 — templates seed step과 symmetric
+        # (헤더 누락 400 / total=51 / 2차 inserted=0 3단계 완성).
         run: |
           set -e
           # Negative path — missing header must 400 (Cycle 3 Fix F1).
@@ -135,6 +138,55 @@ jobs:
             exit 1
           fi
           echo "OK   /knowledge/seed declares total=51"
+
+          # Idempotency — second call with a different key must skip everything (v1.1.2 Y2).
+          second=$(curl -s -X POST http://localhost:3003/knowledge/seed \
+            -H 'Idempotency-Key: ci-storage-seed-2')
+          echo "second run: $second"
+          inserted=$(echo "$second" | sed -nE 's/.*"inserted":([0-9]+).*/\1/p')
+          if [ "$inserted" != "0" ]; then
+            echo "KNOWLEDGE SEED REGRESSION: second run inserted=$inserted (expected 0)"
+            exit 1
+          fi
+          echo "OK   /knowledge/seed second run skipped all"
+      - name: Templates seed import regression check (v1.1.2)
+        # POST /templates/seed twice. First run inserts the Aurora bundle (or
+        # skips it if the records already exist in the test Airtable base) —
+        # the JSON body shape is identical either way. Second run MUST be
+        # idempotent and the Aurora templates MUST be present afterwards.
+        # Mirrors the 51-seed regression check above so the contract is
+        # uniform across Knowledge and Templates.
+        run: |
+          set -e
+          # Negative path — missing header must 400.
+          no_key=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3003/templates/seed)
+          if [ "$no_key" != "400" ]; then
+            echo "TEMPLATES SEED REGRESSION: missing Idempotency-Key returned $no_key (expected 400)"
+            exit 1
+          fi
+          echo "OK   /templates/seed without Idempotency-Key -> 400"
+
+          # Happy path with key — bundle drift detection (total must equal 3).
+          first=$(curl -s -X POST http://localhost:3003/templates/seed \
+            -H 'Idempotency-Key: ci-storage-templates-seed-1')
+          echo "first run: $first"
+          total=$(echo "$first" | sed -nE 's/.*"total":([0-9]+).*/\1/p')
+          if [ "$total" != "3" ]; then
+            echo "TEMPLATES SEED DRIFT: declared total=$total, expected 3"
+            exit 1
+          fi
+          echo "OK   /templates/seed declares total=3"
+
+          # Idempotency — second call with a different key must skip everything.
+          second=$(curl -s -X POST http://localhost:3003/templates/seed \
+            -H 'Idempotency-Key: ci-storage-templates-seed-2')
+          echo "second run: $second"
+          inserted=$(echo "$second" | sed -nE 's/.*"inserted":([0-9]+).*/\1/p')
+          if [ "$inserted" != "0" ]; then
+            echo "TEMPLATES SEED REGRESSION: second run inserted=$inserted (expected 0)"
+            exit 1
+          fi
+          echo "OK   /templates/seed second run skipped all"
       - name: D 11-field forward-compat endpoints respond (Cycle 3 §D)
         run: |
           set -e

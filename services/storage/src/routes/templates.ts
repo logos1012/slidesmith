@@ -1,9 +1,17 @@
 // templates.ts — /templates CRUD (SPEC §5-3).
 // Cycle 2: PATCH /:id/usage hot path is exposed for usage_count incrementUsage.
+// v1.1.2: POST /templates/seed — onboarding default Templates upsert (Aurora
+// Light / Vibrant / Editorial). Always idempotent: running it twice keeps
+// Templates at N records, never 2N. Mirrors POST /knowledge/seed exactly so
+// Idempotency-Key handling, Korean userMessage on missing header, and the
+// alreadyExists wire shape are identical for the wizard.
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { getRepos } from '../repositories/container.js';
 import { logger } from '../lib/logger.js';
+import { seedTemplates } from '../seed/seed-templates-service.js';
+import { acquireOrCreate } from '../lib/idempotency.js';
+import type { TemplatesSeedReport } from '../seed/seed-templates-service.js';
 
 export const templates = new Hono();
 
@@ -23,6 +31,53 @@ const CreateBody = z.object({
 });
 
 const PatchBody = CreateBody.partial();
+
+// v1.1.2 — onboarding default Templates seed import. Body is empty (the bundle
+// ships in the image at src/seed/templates-default.json). Idempotency-Key is
+// MANDATORY for the same reason as /knowledge/seed (Cycle 3 Fix F1): without
+// it, two storage instances or two concurrent same-instance calls would each
+// see a name miss in the in-memory dedup cache and create the bundle twice.
+//
+// Registered ABOVE `/:id` so the literal path wins over the param matcher.
+templates.post('/seed', async (c) => {
+  const idemKey = c.req.header('Idempotency-Key') ?? c.req.header('idempotency-key');
+  if (!idemKey || idemKey.trim() === '') {
+    return c.json(
+      {
+        error: 'missing_idempotency_key',
+        message: 'Idempotency-Key header is required for /templates/seed',
+        userMessage:
+          '템플릿 가져오기는 Idempotency-Key 헤더가 필요합니다. 마법사를 다시 시작해주세요.',
+      },
+      400,
+    );
+  }
+
+  const factory = (): Promise<TemplatesSeedReport> =>
+    seedTemplates(getRepos().templates);
+
+  try {
+    const hit = await acquireOrCreate<TemplatesSeedReport>(
+      'templates-seed',
+      idemKey,
+      factory,
+    );
+    return c.json(
+      hit.alreadyExists ? { ...hit.value, alreadyExists: true } : hit.value,
+      hit.alreadyExists ? 200 : 201,
+    );
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, 'templates_seed_failed');
+    return c.json(
+      {
+        error: 'seed_failed',
+        message: 'failed to import templates seed',
+        userMessage: '템플릿 가져오기에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      },
+      502,
+    );
+  }
+});
 
 templates.get('/', async (c) => {
   const parsed = ListQuery.safeParse(Object.fromEntries(new URL(c.req.url).searchParams));

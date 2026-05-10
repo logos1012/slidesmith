@@ -86,6 +86,27 @@ export class AirtableTemplateRepo implements ITemplateRepo {
       throw err;
     }
   }
+
+  /**
+   * v1.1.2 — single-record lookup by `name` for `POST /templates/seed` upsert.
+   * Same escape strategy as AirtableKnowledgeRepo (Cycle 2 Fix F4): backslash
+   * first, then quotes, then strip CR/LF so the formula parser stays happy.
+   */
+  async findByName(name: string): Promise<TemplateItem | null> {
+    const escaped = name
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/'/g, "\\'")
+      .replace(/[\r\n]/g, ' ');
+    const params = new URLSearchParams();
+    params.set('pageSize', '1');
+    params.set('filterByFormula', `{name}="${escaped}"`);
+    const data = await airtableFetch<AirtableListResponse<AirtableTemplateFields>>(
+      `/${TABLE}?${params.toString()}`,
+    );
+    const first = data.records[0];
+    return first ? airtableToTemplate(first) : null;
+  }
 }
 
 function isNotFound(err: unknown): boolean {
