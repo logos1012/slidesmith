@@ -30,8 +30,8 @@ importers:
         specifier: ^5.0.7
         version: 5.1.11
       opossum:
-        specifier: ^8.4.0
-        version: 8.5.0
+        specifier: ^9.0.0
+        version: 9.0.0
       p-limit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -2014,9 +2014,9 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
-  opossum@8.5.0:
-    resolution: {integrity: sha512-LZNvs+p9/ZbG4oN6unnjh4hTxkB0dyHKI2p7azVt8w+//GKDpfHss6WR7KebbpzGEssYwtSd8Mvwxqcmxg10NA==}
-    engines: {node: ^24 || ^22 || ^21 || ^20 || ^18 || ^16}
+  opossum@9.0.0:
+    resolution: {integrity: sha512-K76U0QkxOfUZamneQuzz+AP0fyfTJcCplZ2oZL93nxeupuJbN4s6uFNbmVCt4eWqqGqRnnowdFuBicJ1fLMVxw==}
+    engines: {node: ^24 || ^22 || ^20}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -4422,7 +4422,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  opossum@8.5.0: {}
+  opossum@9.0.0: {}
 
   optionator@0.9.4:
     dependencies:
