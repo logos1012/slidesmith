@@ -6,7 +6,7 @@
 # package.json now pins `packageManager: pnpm@11.0.9` so corepack uses the
 # explicit version's bundled signing key instead of fetching "latest stable".
 
-FROM node:22-bullseye-slim AS deps
+FROM node:26-bullseye-slim AS deps
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
       wget gnupg ca-certificates \
@@ -24,7 +24,7 @@ RUN corepack enable && pnpm install --frozen-lockfile --ignore-scripts
 # Cycle 2 Fix T10-N1 — dev stage now drops privileges to `app` (uid 1001).
 # Combined with R1 (no SOP bypass + no JS in slide page), the renderer is no
 # longer a root-privileged code-exec surface inside its container.
-FROM node:22-bullseye-slim AS dev
+FROM node:26-bullseye-slim AS dev
 WORKDIR /app
 # Puppeteer Chromium runtime deps + Korean fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -67,7 +67,7 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "node_modules/tsx/dist/cli.mjs", "watch", "src/server.ts"]
 
 # ─── PROD-BUILD stage ────────────────────────────────────────────────────
-FROM node:22-bullseye-slim AS prod-build
+FROM node:26-bullseye-slim AS prod-build
 WORKDIR /app
 RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
@@ -75,7 +75,7 @@ COPY . .
 RUN pnpm build
 
 # ─── PROD stage ──────────────────────────────────────────────────────────
-FROM node:22-bullseye-slim AS prod
+FROM node:26-bullseye-slim AS prod
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
       chromium ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 \
